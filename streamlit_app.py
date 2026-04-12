@@ -123,11 +123,11 @@ html,body,.stApp,[data-testid="stAppViewContainer"],[data-testid="stMain"] {
 
 /* ─ Typography ─ */
 .body-text    { font-size:1rem; line-height:1.9; color:#e8e4de; margin-bottom:.9rem; text-align:justify; hyphens:auto; }
-.teaser       { font-size:1.05rem; line-height:1.8; color:#9a9490; font-style:italic; font-weight:300; margin-bottom:.4rem; }
+.teaser       { font-size:1.15rem !important; line-height:1.8; color:#9a9490; font-style:italic; font-weight:300; margin-bottom:.4rem; }
 .author-line  { font-size:.72rem; color:#6a6560; margin:0; line-height:1.4; }
 .sec-divider  { border:none; border-top:1px solid #7a7570; margin:.4rem 0 .6rem; }
 .section-title{ font-size:1.2rem; font-weight:600; color:#f0ece6; margin:.8rem 0 .5rem; line-height:1.3; }
-.chart-title  { font-size:1.15rem; font-weight:600; color:#f0ece6; margin-bottom:.3rem; }
+.chart-title  { font-size:1.5rem !important; font-weight:600; color:#f0ece6; margin-bottom:.3rem; }
 .chart-caption{ font-size:.86rem; color:#8a8580; margin-top:.4rem; line-height:1.6; font-style:italic; }
 .divider      { border:none; border-top:1px solid #222; margin:1.2rem 0; }
 .quote-box    { border-left:3px solid #d97941; padding:.9rem 0 .9rem 1.4rem; margin:1rem 0; }
@@ -286,7 +286,7 @@ def sentinel(i):
 # Right column (0.91): all article content
 # Padding added via extra thin outer columns
 # ═══════════════════════════════════════════════════════════════════════════════
-_, col_tl, col_content, _ = st.columns([0.02, 0.08, 0.88, 0.02], gap="small")
+_, col_tl, col_content, _ = st.columns([0.02, 0.08, 0.84, 0.06], gap="small")
 
 # ── OV1: Timeline column ──────────────────────────────────────────────────────
 with col_tl:
@@ -484,12 +484,21 @@ const chart=new Chart(ctx,{{
     plugins:{{legend:{{display:false}},tooltip:{{
       backgroundColor:'#1a1a1a',borderColor:'#2a2a2a',borderWidth:1,
       titleColor:'#e8e4de',bodyColor:'#7a7570',
-      callbacks:{{label:c=>c.datasetIndex===0?c.parsed.y+' protests':''}}
+      displayColors:false,
+      callbacks:{{
+        title:()=>'',
+        label:c=>c.datasetIndex===0?c.parsed.y+' protests per week':''
+      }}
     }}}},
     scales:{{
-      x:{{ticks:{{color:'#5a5651',maxTicksLimit:9,font:{{size:11}},
-          callback:(v,i)=>{{const d=labels[i];return d&&d.endsWith('-01-01')?d.slice(0,4):''}}}},
-         grid:{{color:'rgba(255,255,255,.03)'}},border:{{color:'rgba(255,255,255,.05)'}}}},
+      x:{{
+  ticks:{{
+    color:'#5a5651',font:{{size:11}},maxRotation:0,
+    autoSkip:true,
+    maxTicksLimit:9,
+    callback:(v)=>labels[v]?labels[v].slice(0,4):''
+  }},
+  grid:{{color:'rgba(255,255,255,.03)'}},border:{{color:'rgba(255,255,255,.05)'}}}},
       y:{{ticks:{{color:'#5a5651',font:{{size:11}}}},grid:{{color:'rgba(255,255,255,.03)'}},
          border:{{color:'rgba(255,255,255,.05)'}},
          title:{{display:true,text:'Protests per week',color:'#5a5651',font:{{size:11}}}}}}
@@ -584,7 +593,7 @@ body{{background:#0d0d0d;font-family:Georgia,serif;color:#e8e4de;padding-bottom:
   justify-content:center;transition:background .2s;flex-shrink:0;}}
 #playbtn:hover{{background:#252525;}}
 #mrow{{display:flex;align-items:center;gap:8px;}}
-.ms{{font-size:11px;cursor:pointer;transition:color .3s;user-select:none;color:#6a6560;}}
+.ms{{font-size:14px;font-weight:600;cursor:pointer;transition:color .3s;user-select:none;color:#6a6560;}}
 .ms.on{{color:#e8e4de;}}
 .track-s{{width:38px;height:18px;background:#cc3333;border-radius:18px;cursor:pointer;position:relative;flex-shrink:0;}}
 .thumb-s{{position:absolute;top:2px;left:2px;width:14px;height:14px;background:#fff;border-radius:50%;transition:transform .25s;pointer-events:none;}}
@@ -848,7 +857,7 @@ LOCS.forEach(l=>{{
 <html><head><meta charset="utf-8">
 <style>
 *{{margin:0;padding:0;box-sizing:border-box;}}
-body{{background:#0d0d0d;font-family:Georgia,serif;color:#e8e4de;padding:6px 0 8px;}}
+body{{background:#0d0d0d;font-family:Georgia,serif;color:#e8e4de;padding:2px 0 2px;}}
 #cards{{display:flex;gap:12px;}}
 .card{{flex:1;min-width:160px;background:#111;border:1px solid #2a2a2a;border-radius:4px;
   padding:14px 14px 12px;display:flex;flex-direction:column;align-items:center;gap:8px;transition:border-color .3s;}}
