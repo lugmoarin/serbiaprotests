@@ -244,7 +244,7 @@ html,body{background:#0d0d0d;width:100%;height:100%;overflow:hidden;}
   <div id="overlay">
     <div id="headline">
       <!-- ◀ Beg1: HEADLINE — replace with actual title -->
-      16 Minutes: Anatomy<br> of Serbia`s protests
+      16 Minutes: Anatomy<br> of Serbia`s Youth Protests
     </div>
   </div>
 </div>
@@ -396,13 +396,13 @@ with col_content:
         # ◀ PA2: replace with your text (~80-90 words, ends at the same point as the post)
         # PA3 content can be combined here to fill the column beside the post
         st.markdown("""
-<p class="body-text">Thinking back to that day, the 21-year-old communication student from Novi Sad struggles to gather his words. The distinct sound of ambulance sirens is still ingrained in his memory. "I remember everyone calling each other. Asking if they are near the station? If they are alive?" In a different part of the city, another young man struggled to do the same. "It was just like a usual day", Vuk, a 22-year-old social work student, says.</p>
+<p class="body-text">Thinking back to that day, the 21-year-old communication student from Novi Sad struggles to gather his words. The distinct sound of ambulance sirens is still ingrained in his memory.</p>
 
 <div style="border-left:3px solid #d97941;padding:0.6rem 0 0.6rem 1.2rem;margin:1rem 0;">
-  <p style="font-size:1.9rem;font-weight:600;font-style:italic;color:#f0ece6;line-height:1.4;margin:0;">"And then all of a sudden these videos started popping up."</p>
+  <p style="font-size:1.9rem;font-weight:600;font-style:italic;color:#f0ece6;line-height:1.4;margin:0;">"I remember everyone calling each other.<br>Asking if they are near the station?<br>If they are alive?"</p>
 </div>
 
-<p class="body-text">He had a friend who commuted through that station. "I was scared to text her at first. What if she wouldn't respond?" Across Novi Sad, phones buzzed with the same questions that day. "You feel like it is happening far away, but actually it is so close."</p>
+<p class="body-text">In a different part of the city, another young man struggled to do the same. "It was just like a usual day”, Vuk, a 22-year-old social work student, says. "And then all of a sudden these videos started popping up”. He had a friend who commuted through that station. "I was scared to text her at first. What if she wouldn’t respond?" Across Novi Sad, phones buzzed with the same questions that day. "You feel like it is happening far away, but actually it is so close."</p>
 <p class="body-text">That evening, people gathered on the Main Square in Novi Sad. Some lit candles, others cried together. But beneath the grief, something else was taking hold: fury at the corruption that many believed had made the disaster possible. Fury that would soon lead to a nationwide student-led protest movement. One which Luka and Vuk have been part of from the beginning.</p>
 """, unsafe_allow_html=True)
         
@@ -618,7 +618,7 @@ body{{background:#0d0d0d;font-family:Georgia,serif;color:#e8e4de;padding-bottom:
 </div>
 <div id="cap">
   <!-- ◀ PA9 caption: describe what the map shows and add data source -->
-  Protest events in Serbia from November 2024 onwards. Blue = all protest events; Orange = youth-related. Use the slider or "play" button to move through time. Toggle between "Monthly" (events that month only) and "Cumulative" (all events up to that month). ACLED (Armed Conflict Location & Event Data), accessed 12. April 2026. www.acleddata.com
+  Use the slider or "play" button to move through time. Toggle between "Monthly" (events that month only) and "Cumulative" (all events up to that month). Source: ACLED (Armed Conflict Location & Event Data), accessed 12. April 2026. www.acleddata.com Youth-related protests identified with keywords.
 </div>
 <script>
 const M={map_json};const MONTHS={months_json};
@@ -661,13 +661,13 @@ render(0);
     # PA10a ── Text block
     sentinel(7)
     # ◀ PA10a: replace with your paragraph
-    st.markdown("""
-<p class="body-text">This broad public support sustained the movement through a winter and spring of massive demonstrations, with several protests spanning widely over 100,000 people. On March 15, 2025, the independent NGO Arhiv javnih skupova estimated over 300,000 people taking the streets of Belgrade, with the government reporting a count of 107,000. That day, the government was accused of deploying a sonic weapon against protesters by rights groups and opposition. They ultimately denied it.</p>
-""", unsafe_allow_html=True)
+    # st.markdown("""
+# <p class="body-text">This broad public support sustained the movement through a winter and spring of massive demonstrations, with several protests spanning widely over 100,000 people. On March 15, 2025, the independent NGO Arhiv javnih skupova estimated over 300,000 people taking the streets of Belgrade, with the government reporting a count of 107,000. That day, the government was accused of deploying a sonic weapon against protesters by rights groups and opposition. They ultimately denied it.</p>
+# """, unsafe_allow_html=True)
 
     # PA10b ── X-Post left  +  text right (~22 words, PA11 combined)
     sentinel(8)
-    col_pa10x, col_pa10t = st.columns([0.9, 1.2], gap="large")
+    col_pa10t, col_pa10x = st.columns([1.5, 0.7], gap="large")
     with col_pa10x:
         # X-Post: https://twitter.com/visegrad24/status/1902376760555065655
         components.html("""
@@ -682,10 +682,15 @@ render(0);
     with col_pa10t:
         # ◀ PA10b + PA11: replace with your text (right column, ~22 + additional words)
         st.markdown("""
-<p class="body-text">By this point, the movement had already forced some institutional cracks: Prime Minister Miloš Vučević as well as Milan Đurić, Novi Sad’s mayor, had resigned, and the first indictments for criminal liability in connection to the canopy collapsing had been filed. However, for Ognjen, these concessions felt like "cosmetic arrests" and masks. "They don’t have any interest in actually doing their job", he says. The movement’s four demands — publication of all documentation related to the railway station reconstruction, the identification of those who attacked students, the dismissal of all legal proceedings against protesters and a 20 percent increase in state funding for public universities — remained unmet.</p>
-""", unsafe_allow_html=True)
+<p class="body-text">This broad public support sustained the movement through a winter and spring of massive demonstrations, with several protests spanning widely over 100,000 people. On March 15, 2025, the independent NGO Arhiv javnih skupova estimated over 300,000 people taking the streets of Belgrade, with the government reporting a count of 107,000. That day, the government was accused of deploying a sonic weapon against protesters by rights groups and opposition. They ultimately denied it.</p>
+<p class="body-text">By this point, the movement had already forced some institutional cracks: Prime Minister Miloš Vučević as well as Milan Đurić, Novi Sad’s mayor, had resigned, and the first indictments for criminal liability in connection to the canopy collapsing had been filed. However, for Ognjen, these concessions felt like "cosmetic arrests" and masks.</p>
 
-    st.markdown('<hr class="divider">', unsafe_allow_html=True)
+<div style="border-left:3px solid #d97941;padding:0.6rem 0 0.6rem 1.2rem;margin:1rem 0;">
+  <p style="font-size:1.9rem;font-weight:600;font-style:italic;color:#f0ece6;line-height:1.4;margin:0;">"They don’t have<br>any interest in actually<br>doing their job"</p>
+</div>
+
+<p class="body-text">he says. The movement’s four demands — publication of all documentation related to the railway station reconstruction, the identification of those who attacked students, the dismissal of all legal proceedings against protesters and a 20 percent increase in state funding for public universities — remained unmet.</p>
+""", unsafe_allow_html=True)
 
     # ──────────────────────────────────────────────────────────────────────────
     # PRESENT
@@ -694,7 +699,7 @@ render(0);
     # PRE1 ── Section heading
     sentinel(9)
     # ◀ PRE1: replace with your section heading
-    st.markdown('<h2 class="section-title">Do we need a section headline here?</h2>',
+    st.markdown('<h2 class="section-title">And now?</h2>',
                 unsafe_allow_html=True)
 
     # PRE2 ── Text block
