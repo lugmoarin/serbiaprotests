@@ -244,7 +244,7 @@ html,body{background:#0d0d0d;width:100%;height:100%;overflow:hidden;}
   <div id="overlay">
     <div id="headline">
       <!-- ◀ Beg1: HEADLINE — replace with actual title -->
-      16 Minutes: Anatomy<br> of Serbia`s Youth Protests
+      16 Minutes Silence:<br> Anatomy of Serbia`s Youth Protests???!!!
     </div>
   </div>
 </div>
@@ -536,10 +536,10 @@ function toggle(){{
 <p class="body-text">“Such protests very often attach themselves to tragic events”, says Dr. Tobias Spöri, a political scientist at the University of Vienna. He describes tragedies like this as a “core trigger” for protest movements, rooted in people being dissatisfied with the political situation in a country. “It is very often students who initiate these processes”, he says. This is precisely what happened in Serbia. What began as grief-driven protests, demanding a transparent and thorough investigation into the accident, quickly grew into a broader movement calling for democratic change. Protesters turned their anger towards President Aleksandar Vučić and his ruling Serbian Progressive Party (SNS), blaming large-scale corruption within the party for the catastrophe and accusing the government of restricting democratic freedoms since coming into power in 2017.</p>
 """, unsafe_allow_html=True)
 
-    # PA6 ── Expandable "Serbia in Context"
+    # PA6 ── Expandable "Serbia’s Political System at a Glance"
     # Uses native st.expander → content below shifts dynamically when opened/closed
     sentinel(4)
-    with st.expander("Serbia in Context"):
+    with st.expander("Serbia’s Political System at a Glance"):
         # ◀ PA6: replace with your ~70-word context text (shown on light gray background)
         st.markdown("""
 <p class="body-text">Serbia is a country of seven million people in the Western Balkans, formally an EU candidate since 2012. Serbia ranks 116th out of 182 countries on Transparency International's 2024 Corruption Perceptions Index, among the worst in Europe. The V-Dem Institute classifies the country as an electoral autocracy: elections take place, but conditions are neither free nor fair, and democratic backsliding has been ongoing since 2009.</p>
@@ -665,7 +665,7 @@ render(0);
 # <p class="body-text">This broad public support sustained the movement through a winter and spring of massive demonstrations, with several protests spanning widely over 100,000 people. On March 15, 2025, the independent NGO Arhiv javnih skupova estimated over 300,000 people taking the streets of Belgrade, with the government reporting a count of 107,000. That day, the government was accused of deploying a sonic weapon against protesters by rights groups and opposition. They ultimately denied it.</p>
 # """, unsafe_allow_html=True)
 
-    # PA10b ── X-Post left  +  text right (~22 words, PA11 combined)
+    # PA10b ── X-Post right  +  text left (~22 words, PA11 combined)
     sentinel(8)
     col_pa10t, col_pa10x = st.columns([1.5, 0.7], gap="large")
     with col_pa10x:
@@ -939,27 +939,27 @@ Meanwhile, thousands continue to leave Serbia. Spöri cautions that many are "vo
         with st.expander("Sources"):
             # ◀ END2 Sources: replace with your actual sources
             st.markdown("""
-<p class="body-text">Data source: 
+<p class="body-text">Data source:<br> 
 ACLED (Armed Conflict Location & Event Data), accessed 12. April 2026. www.acleddata.com
 </p>
-<p class="body-text">Dialogue sources: 
-Luka (2026, April). Personal interview conducted by Sophie Eder. [conducted via video call].
-Ognjen (2026, April). Personal interview conducted by Sophie Eder. [conducted via video call].
-Vuk (2026, April). Personal interview conducted by Sophie Eder. [conducted via video call].
+<p class="body-text">Dialogue sources:<br> 
+Luka (2026, April). Personal interview conducted by Sophie Eder. [conducted via video call].<br>
+Ognjen (2026, April). Personal interview conducted by Sophie Eder. [conducted via video call].<br>
+Vuk (2026, April). Personal interview conducted by Sophie Eder. [conducted via video call].<br>
 Dr. Tobias Spöri (2025, April). Personal interview conducted by Sophie Eder and Laura Lugmair. University of Vienna [conducted via video call].
 </p>
-<p class="body-text">Non-dialogue sources:
-Al Jazeera. (2024, November 6). Police fire tear gas at Serbians protesting deadly station roof collapse. Al Jazeera. https://www.aljazeera.com/news/2024/11/6/police-fire-tear-gas-at-serbians-protesting-deadly-station-roof-collapse
-BBC News. (2025, March 15). Serbia's largest-ever rally sees 325,000 protest against government. BBC News. https://www.bbc.com/news/articles/cx2g8v32q30o
-Danas. (2024, December 11). Funkcioner SNS-a i "slučajni prolaznik": Ko je Milija Koldžić, član opštinskog veća koji "ništa nije kriv"? [SNS official and "accidental bystander": Who is Milija Koldžić, the municipal council member who "did nothing wrong"?]. Danas. https://www.danas.rs/vesti/politika/milija-koldzic-biografija/
-Deutsche Welle. (2025, March 15). Serbia: Protesters flood Belgrade with Vucic under pressure. DW. https://www.dw.com/en/serbia-protesters-flood-belgrade-with-vucic-under-pressure/a-71933147
-European Western Balkans. (2025, September 5). Vučić's distortion of facts to help save a tarnished international reputation. European Western Balkans. https://europeanwesternbalkans.com/2025/09/05/vucics-distortion-of-facts-to-help-save-a-tarnished-international-reputation/
-Icoski, M. (2022, October 19). Reversing the brain drain in the Western Balkans. German Marshall Fund of the United States. https://www.gmfus.org/news/reversing-brain-drain-western-balkans 
-Luhrmann, A., Maerz, S. F., Grahn, S., Alizada, N., Gastaldi, L., Hellmeier, S., Hindle, G., & Lindberg, S. I. (2025). Democracy report 2025: Autocratization turns viral. University of Gothenburg, V-Dem Institute. https://www.v-dem.net/publications/democracy-reports/
-Raleigh, C., Kishi, R., & Linke, A. (2023). Political instability patterns are obscured by conflict dataset scope conditions, sources, and coding choices. Humanities and Social Sciences Communications. https://doi.org/10.1057/s41599-023-01559-4 
-Rakić, S. (2026, March 30). Vučić declares victory in all municipalities: Election day marked by clashes and allegations of vote-buying. N1, Radio Free Europe. https://www.serbianmonitor.com/en/vucic-declares-victory-in-all-municipalities-election-day-marked-by-clashes-and-allegations-of-vote-buying/ 
-Stojanović, M. (2025, January 28). Serbia's prime minister resigns as mass protests rock country. Balkan Insight. https://balkaninsight.com/2025/01/28/serbias-prime-minister-resigns-as-mass-protests-rock-country/bi/
-Transparency International. (2025). Corruption Perceptions Index 2025. https://www.transparency.org/en/cpi/2025 
+<p class="body-text">Non-dialogue sources:<br>
+Al Jazeera. (2024, November 6). Police fire tear gas at Serbians protesting deadly station roof collapse. Al Jazeera. https://www.aljazeera.com/news/2024/11/6/police-fire-tear-gas-at-serbians-protesting-deadly-station-roof-collapse<br>
+BBC News. (2025, March 15). Serbia's largest-ever rally sees 325,000 protest against government. BBC News. https://www.bbc.com/news/articles/cx2g8v32q30o<br>
+Danas. (2024, December 11). Funkcioner SNS-a i "slučajni prolaznik": Ko je Milija Koldžić, član opštinskog veća koji "ništa nije kriv"? [SNS official and "accidental bystander": Who is Milija Koldžić, the municipal council member who "did nothing wrong"?]. Danas. https://www.danas.rs/vesti/politika/milija-koldzic-biografija/<br>
+Deutsche Welle. (2025, March 15). Serbia: Protesters flood Belgrade with Vucic under pressure. DW. https://www.dw.com/en/serbia-protesters-flood-belgrade-with-vucic-under-pressure/a-71933147<br>
+European Western Balkans. (2025, September 5). Vučić's distortion of facts to help save a tarnished international reputation. European Western Balkans. https://europeanwesternbalkans.com/2025/09/05/vucics-distortion-of-facts-to-help-save-a-tarnished-international-reputation/<br>
+Icoski, M. (2022, October 19). Reversing the brain drain in the Western Balkans. German Marshall Fund of the United States. https://www.gmfus.org/news/reversing-brain-drain-western-balkans<br>
+Luhrmann, A., Maerz, S. F., Grahn, S., Alizada, N., Gastaldi, L., Hellmeier, S., Hindle, G., & Lindberg, S. I. (2025). Democracy report 2025: Autocratization turns viral. University of Gothenburg, V-Dem Institute. https://www.v-dem.net/publications/democracy-reports/<br>
+Raleigh, C., Kishi, R., & Linke, A. (2023). Political instability patterns are obscured by conflict dataset scope conditions, sources, and coding choices. Humanities and Social Sciences Communications. https://doi.org/10.1057/s41599-023-01559-4<br>
+Rakić, S. (2026, March 30). Vučić declares victory in all municipalities: Election day marked by clashes and allegations of vote-buying. N1, Radio Free Europe. https://www.serbianmonitor.com/en/vucic-declares-victory-in-all-municipalities-election-day-marked-by-clashes-and-allegations-of-vote-buying/<br> 
+Stojanović, M. (2025, January 28). Serbia's prime minister resigns as mass protests rock country. Balkan Insight. https://balkaninsight.com/2025/01/28/serbias-prime-minister-resigns-as-mass-protests-rock-country/bi/<br>
+Transparency International. (2025). Corruption Perceptions Index 2025. https://www.transparency.org/en/cpi/2025<br> 
 Vreme. (2025, January 28). Gradonačelnik Novog Sada Milan Đurić podneo ostavku [Mayor of Novi Sad Milan Đurić resigns]. Vreme. https://vreme.com/en/vesti/gradonacelnik-novog-sada-milan-djuric-podnosi-ostavku/
 </p>
 """, unsafe_allow_html=True)
@@ -967,6 +967,6 @@ Vreme. (2025, January 28). Gradonačelnik Novog Sada Milan Đurić podneo ostavk
         with st.expander("Methodology"):
             # ◀ END2 Methodology: replace with your methodology description
             st.markdown("""
-<p class="body-text">XXX</p>
-<p class="body-text">Statistical analysis was conducted in R using an Interrupted Time Series (ITS) model with the Novi Sad train station collapse (1 November 2024) as the treatment point. Youth-related protests were identified via keyword matching in ACLED event notes. [Add full methodology here.]</p>
+<p class="body-text">XXX gotta add full methods here still</p>
+<p class="body-text">Statistical analysis was conducted in R using an Interrupted Time Series (ITS) model with the Novi Sad train station collapse (1 November 2024) as the treatment point. Youth-related protests were identified via keyword matching in ACLED event notes......</p>
 """, unsafe_allow_html=True)
