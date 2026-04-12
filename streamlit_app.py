@@ -1,594 +1,934 @@
 import os
-import streamlit as st
-import plotly.express as px
-import plotly.graph_objects as go
-import pandas as pd
 import json
 import base64
+import pandas as pd
+import streamlit as st
 import streamlit.components.v1 as components
 
-# ── Path helper — works locally AND on Streamlit Cloud ───────────────────────
 BASE = os.path.dirname(os.path.abspath(__file__))
-def dp(filename):
-    return os.path.join(BASE, "data", filename)
+def dp(f): return os.path.join(BASE, "data", f)
 
-st.set_page_config(
-    layout="wide",
-    page_title="Serbia Protests",
-    page_icon="🇷🇸"
-)
+st.set_page_config(layout="wide", page_title="Serbia Protests", page_icon="🇷🇸")
 
-# ── GLOBAL CSS ────────────────────────────────────────────────────────────────
+# ── Keywords (from assign4_journo.R) ─────────────────────────────────────────
+KW = "student|university|fakultet|faculty|youth|young people|occupying|occupied"
+
+# ── Data loading ──────────────────────────────────────────────────────────────
+@st.cache_data
+def load_protests():
+    df = pd.read_csv(dp("protests_serbia.csv"))
+    df["event_date"] = pd.to_datetime(df["event_date"])
+    df["is_student"] = df["notes"].str.contains(KW, case=False, na=False)
+    df["month"] = df["event_date"].dt.to_period("M").astype(str)
+    return df
+
+@st.cache_data
+def load_weekly():
+    df = pd.read_csv(dp("weekly_serbia.csv"))
+    df["week"] = pd.to_datetime(df["week"])
+    return df
+
+@st.cache_data
+def get_weekly_json():
+    df = load_weekly()
+    return json.dumps([
+        {"w": str(r["week"].date()), "a": int(r["n_events"]), "y": int(r["n_student_events"])}
+        for _, r in df.iterrows()
+    ])
+
+@st.cache_data
+def get_map_json():
+    df = load_protests()
+    post = df[df["event_date"] >= "2024-11-01"].dropna(subset=["latitude","longitude"])
+    months = sorted(post["month"].unique())
+    monthly = {}
+    for m in months:
+        mdf = post[post["month"] == m]
+        step = max(1, len(mdf) // 150)
+        monthly[m] = [
+            {"la": round(float(r.latitude),4), "lo": round(float(r.longitude),4),
+             "s": bool(r.is_student), "n": r.location}
+            for i, r in enumerate(mdf.itertuples()) if i % step == 0
+        ]
+    return json.dumps(monthly), json.dumps(months)
+
+@st.cache_data
+def get_bar_json():
+    df = load_protests()
+    bar = df[(df["event_date"] >= "2025-03-01") & (df["event_date"] <= "2026-03-31")].copy()
+    bar["mp"] = bar["event_date"].dt.to_period("M")
+    magg = bar.groupby("mp").agg(youth=("is_student","sum")).reset_index()
+    magg["ms"] = magg["mp"].dt.strftime("%b %Y")
+    return json.dumps([{"m": r["ms"], "y": int(r["youth"])} for _, r in magg.iterrows()])
+
+def file_to_b64(path, mime):
+    try:
+        with open(path, "rb") as f:
+            return f"data:{mime};base64,{base64.b64encode(f.read()).decode()}"
+    except FileNotFoundError:
+        return None
+
+weekly_json  = get_weekly_json()
+map_json, months_json = get_map_json()
+bar_json     = get_bar_json()
+n_months     = len(json.loads(months_json))
+
+audio_luka   = file_to_b64(os.path.join(BASE, "LUKA.mp3"),   "audio/mpeg")
+audio_vuk    = file_to_b64(os.path.join(BASE, "VUK.mp3"),    "audio/mpeg")
+audio_ognjen = file_to_b64(os.path.join(BASE, "OGNJEN.mp3"), "audio/mpeg")
+
+ELECTION_DATA = {
+    "Kula":{"sns":"50.52%","stud":"~48%"},
+    "Bor":{"sns":"49.2%","stud":"40.3%"},
+    "Sevojno":{"sns":"51.48%","stud":"44.84%"},
+    "Aranđelovac":{"sns":"52.96%","stud":"44.9%"},
+    "Bajina Bašta":{"sns":"53.49%","stud":"41.35%"},
+    "Knjaževac":{"sns":"57.11%","stud":"32.9%"},
+    "Smederevska Palanka":{"sns":"58%","stud":"29.22%"},
+    "Kladovo":{"sns":"71.98%","stud":"26.69%"},
+    "Lučani":{"sns":"63.78%","stud":"11 seats"},
+    "Majdanpek":{"sns":"65.64%","stud":"—"},
+}
+ELECTION_COORDS = {
+    "Kula":(45.6072,19.5278),"Bor":(44.0769,22.0961),
+    "Sevojno":(43.8333,19.9167),"Aranđelovac":(44.3033,20.5572),
+    "Bajina Bašta":(43.9711,19.5672),"Knjaževac":(43.5667,22.2578),
+    "Smederevska Palanka":(44.3672,20.9578),"Kladovo":(44.6033,22.6078),
+    "Lučani":(43.8606,20.1397),"Majdanpek":(44.4167,21.9333),
+}
+election_json = json.dumps([
+    {"n":k,"la":ELECTION_COORDS[k][0],"lo":ELECTION_COORDS[k][1],
+     "sns":v["sns"],"stud":v["stud"]}
+    for k,v in ELECTION_DATA.items()
+])
+
+# ── Global CSS ────────────────────────────────────────────────────────────────
 st.markdown("""
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,wght@0,300;0,400;0,600;1,300;1,400&display=swap');
 
-  html, body, [data-testid="stAppViewContainer"], [data-testid="stMain"],
-  [data-testid="block-container"], .stApp {
-    background-color: #0a0a0a !important;
-    color: #e8e0d5 !important;
-  }
+/* ─ Full-bleed layout (needed for header map) ─ */
+html,body,.stApp,[data-testid="stAppViewContainer"],[data-testid="stMain"] {
+  background:#0d0d0d !important; color:#e8e4de !important;
+}
+#MainMenu,header,footer { visibility:hidden; }
+[data-testid="stMainBlockContainer"],
+[data-testid="block-container"],
+.main .block-container {
+  padding:0 !important;
+  max-width:100% !important;
+  margin:0 !important;
+}
+* { font-family:'Source Serif 4',Georgia,serif !important; letter-spacing:0 !important; }
 
-  #MainMenu, header, footer { visibility: hidden; }
+/* ─ Typography ─ */
+.body-text    { font-size:1rem; line-height:1.9; color:#e8e4de; margin-bottom:.9rem; text-align:justify; hyphens:auto; }
+.teaser       { font-size:1.05rem; line-height:1.8; color:#9a9490; font-style:italic; font-weight:300; margin-bottom:.4rem; }
+.author-line  { font-size:.72rem; color:#6a6560; margin:0; line-height:1.4; }
+.sec-divider  { border:none; border-top:1px solid #7a7570; margin:.4rem 0 .6rem; }
+.section-title{ font-size:1.2rem; font-weight:600; color:#f0ece6; margin:.8rem 0 .5rem; line-height:1.3; }
+.chart-title  { font-size:1.15rem; font-weight:600; color:#f0ece6; margin-bottom:.3rem; }
+.chart-caption{ font-size:.86rem; color:#8a8580; margin-top:.4rem; line-height:1.6; font-style:italic; }
+.divider      { border:none; border-top:1px solid #222; margin:1.2rem 0; }
+.quote-box    { border-left:3px solid #d97941; padding:.9rem 0 .9rem 1.4rem; margin:1rem 0; }
+.quote-text   { font-size:1.5rem; font-weight:600; font-style:italic; color:#f0ece6; line-height:1.4; margin-bottom:.4rem; }
+.quote-attr   { font-size:.82rem; color:#6a6560; font-style:normal; }
+.ctx-box      { border-left:1px solid #333; padding:0 0 0 1.2rem; }
+.ctx-text     { font-size:.88rem; line-height:1.8; color:#c8c4be; text-align:justify; }
 
-  [data-testid="block-container"] {
-    padding-top: 2rem !important;
-    padding-bottom: 4rem !important;
-    max-width: 1100px !important;
-    margin: 0 auto !important;
-  }
-
-  * {
-    font-family: 'Libre Baskerville', 'Times New Roman', serif !important;
-  }
-
-  .headline {
-    font-size: 3.2rem;
-    font-weight: normal;
-    line-height: 1.15;
-    color: #e8e0d5;
-    margin-bottom: 1rem;
-    letter-spacing: -0.5px;
-  }
-
-  .teaser {
-    font-size: 1.2rem;
-    line-height: 1.7;
-    color: #a89f94;
-    max-width: 680px;
-    margin-bottom: 2.5rem;
-    font-style: italic;
-  }
-
-  .divider {
-    border: none;
-    border-top: 1px solid #2a2a2a;
-    margin: 2.5rem 0;
-  }
-
-  .section-label {
-    font-size: 0.72rem;
-    letter-spacing: 0.18em;
-    text-transform: uppercase;
-    color: #555;
-    margin-bottom: 0.5rem;
-  }
-
-  .body-text {
-    font-size: 1.05rem;
-    line-height: 1.85;
-    color: #c8c0b5;
-    margin-bottom: 1.2rem;
-  }
-
-  [data-testid="stPlotlyChart"] > div {
-    background: transparent !important;
-  }
-
-  /* Toggle CSS */
-  div[data-testid="stCheckbox"] input[type="checkbox"] {
-    position: absolute; opacity: 0; width: 0; height: 0; pointer-events: none;
-  }
-  div[data-testid="stCheckbox"] label {
-    display: flex; align-items: center; gap: 10px; cursor: pointer;
-    font-family: 'Libre Baskerville', serif; font-size: 0.85rem; color: #888;
-    user-select: none; position: relative; padding-left: 56px;
-  }
-  div[data-testid="stCheckbox"] label::before {
-    content: ''; position: absolute; left: 0; top: 50%;
-    transform: translateY(-50%); width: 48px; height: 24px;
-    background: #cc3333; border-radius: 24px; transition: background 0.2s;
-  }
-  div[data-testid="stCheckbox"] label::after {
-    content: ''; position: absolute; left: 3px; top: 50%;
-    transform: translateY(-50%); width: 18px; height: 18px;
-    background: white; border-radius: 50%; transition: transform 0.2s;
-  }
-  div[data-testid="stCheckbox"]:has(input:checked) label::after {
-    transform: translateY(-50%) translateX(24px);
-  }
-  div[data-testid="stCheckbox"]:has(input:checked) label {
-    color: #e8e0d5;
-  }
+/* ─ Expander: all three (Serbia in Context, Sources, Methodology) ─
+   Fixes overlapping "arrow_right" text; makes titles bold; rounds corners; darker bg ─ */
+[data-testid="stExpander"] {
+  border:1px solid #2a2a2a !important;
+  border-radius:12px !important;
+  background:#111 !important;
+  margin-bottom:8px !important;
+  overflow:hidden !important;
+}
+[data-testid="stExpander"] details { background:#111 !important; border-radius:12px !important; }
+[data-testid="stExpander"] summary {
+  list-style:none !important;
+  position:relative !important;
+  padding:12px 44px 12px 16px !important;
+  background:#111 !important;
+  border-radius:12px !important;
+  cursor:pointer !important;
+}
+[data-testid="stExpander"] summary:hover { background:#161616 !important; }
+[data-testid="stExpander"] summary::-webkit-details-marker { display:none !important; }
+/* The * { font-family: Source Serif 4 !important } breaks Material Symbols font
+   so icon text like "arrow_down" renders as literal text in Source Serif 4.
+   Fix: set ALL text in summary to background color #111 (invisible),
+   then ONLY restore the <p> that holds the actual title. */
+[data-testid="stExpander"] summary,
+[data-testid="stExpander"] summary * {
+  color:#111 !important;
+}
+[data-testid="stExpanderToggleIcon"],
+[data-testid="stExpander"] summary svg {
+  display:none !important;
+}
+/* Restore only the title <p> */
+[data-testid="stExpander"] summary p,
+[data-testid="stExpander"] summary p * {
+  color:#c0bbb5 !important;
+  font-size:15px !important;
+  font-weight:600 !important;
+  display:inline !important;
+  margin:0 !important;
+}
+/* Custom +/− indicator */
+[data-testid="stExpander"] summary::after {
+  content:'+'; position:absolute; right:16px; top:50%;
+  transform:translateY(-50%); color:#5a5651;
+  font-size:18px; font-weight:300; font-family:Georgia,serif !important;
+}
+[data-testid="stExpander"] details[open] summary::after { content:'−'; }
+/* Expanded content area */
+[data-testid="stExpanderDetails"] {
+  background:#dedad6 !important;
+  border-radius:0 0 12px 12px !important;
+  padding:14px 16px 16px !important;
+  border-top:1px solid #c8c4be !important;
+}
+[data-testid="stExpanderDetails"] p,
+[data-testid="stExpanderDetails"] .body-text {
+  color:#1a1a1a !important; font-size:14px !important;
+  line-height:1.85 !important; text-align:justify !important;
+  margin-bottom:.6rem !important;
+}
+[data-testid="stExpanderDetails"] a { color:#cc3333 !important; }
 </style>
 """, unsafe_allow_html=True)
 
 
-# ── HEADER ────────────────────────────────────────────────────────────────────
-st.markdown('<p class="section-label">Data Investigation · Serbia · 2018–2026</p>', unsafe_allow_html=True)
-
-st.markdown("""
-<h1 class="headline">[Headline:<br>Title of the piece]</h1>
-""", unsafe_allow_html=True)
-
-st.markdown('<p class="teaser">[Teaser: 2–3 sentence introduction to the story]</p>', unsafe_allow_html=True)
-
-st.markdown('<hr class="divider">', unsafe_allow_html=True)
-
-
-# ── INTRO WITH IMAGE ──────────────────────────────────────────────────────────
-col_img, col_intro = st.columns([1, 1.5], gap="large")
-
-with col_img:
-    st.image("test.png", use_container_width=True)
-
-with col_intro:
-    st.markdown("""
-    <p class="body-text">[Placeholder: introductory paragraph — what happened, why it matters.]</p>
-    <p class="body-text">[Placeholder: second paragraph with more context.]</p>
-    """, unsafe_allow_html=True)
-
-st.markdown('<hr class="divider">', unsafe_allow_html=True)
-
-
-# ── SECTION 1: LINE CHART ─────────────────────────────────────────────────────
-weekly = pd.read_csv(dp("weekly_serbia.csv"))
-weekly["week"] = pd.to_datetime(weekly["week"])
-
-# Toggle row
-tcol1, tcol2, tcol3 = st.columns([1.2, 0.4, 3])
-with tcol1:
-    st.markdown('<p style="text-align:right; color:#e8e0d5; font-size:0.85rem; margin-top:6px; font-family:Libre Baskerville,serif;">All protests</p>', unsafe_allow_html=True)
-with tcol2:
-    show_youth = st.checkbox("", key="youth_toggle")
-with tcol3:
-    st.markdown('<p style="color:#555; font-size:0.85rem; margin-top:6px; font-family:Libre Baskerville,serif;">Youth protests only</p>', unsafe_allow_html=True)
-
-COLOR_ALL   = "#4a90d9"
-COLOR_YOUTH = "#e07b39"
-
-if show_youth:
-    active_y, active_name, active_color = weekly["n_student_events"], "Youth protests only", COLOR_YOUTH
-    ghost_y,  ghost_name               = weekly["n_events"], "All protests"
-else:
-    active_y, active_name, active_color = weekly["n_events"], "All protests", COLOR_ALL
-    ghost_y,  ghost_name               = weekly["n_student_events"], "Youth protests only"
-
-col_chart, col_text = st.columns([3, 1], gap="large")
-
-with col_text:
-    st.markdown("""
-    <div style="border:1px solid #2a2a2a; border-radius:4px; padding:1.2rem;
-         margin-top:2.5rem; background:#111;">
-      <p style="font-size:0.72rem; letter-spacing:0.12em; text-transform:uppercase;
-         color:#555; margin:0 0 0.6rem 0;">Context</p>
-      <p style="font-size:0.9rem; line-height:1.75; color:#a89f94; margin:0;
-         font-family:Libre Baskerville,serif;">
-        [Placeholder: short context box — key finding, what the reader should take away.]
-      </p>
-    </div>
-    """, unsafe_allow_html=True)
-
-with col_chart:
-    fig = go.Figure()
-    fig.add_trace(go.Scatter(
-        x=weekly["week"], y=ghost_y, name=ghost_name, mode="lines",
-        line=dict(color="rgba(255,255,255,0.08)", width=1.2), hoverinfo="skip"
-    ))
-    fig.add_trace(go.Scatter(
-        x=weekly["week"], y=active_y, name=active_name, mode="lines",
-        line=dict(color=active_color, width=2),
-        hovertemplate="<b>%{x|%b %Y}</b><br>%{y} events<extra></extra>"
-    ))
-    fig.add_vline(x="2024-11-01", line_dash="dash", line_color="#cc3333", line_width=1.5)
-    y_dot_series = weekly.loc[weekly["week"] == "2024-11-01",
-                              "n_student_events" if show_youth else "n_events"]
-    y_dot = int(y_dot_series.values[0]) if len(y_dot_series) > 0 else 20
-    fig.add_trace(go.Scatter(
-        x=["2024-11-01"], y=[y_dot], mode="markers+text",
-        marker=dict(color="#cc3333", size=9),
-        text=["Nov 2024 | Collapse of the Novi Sad train station canopy"],
-        textposition="top right",
-        textfont=dict(color="#cc3333", size=11, family="Libre Baskerville,serif"),
-        hovertemplate="<b>Nov 2024 — Novi Sad collapse</b><br>[Placeholder: context]<extra></extra>",
-        showlegend=False
-    ))
-    fig.update_layout(
-        paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="#0f0f0f",
-        font=dict(family="Libre Baskerville,Times New Roman,serif", color="#888"),
-        title=dict(
-            text="Demonstrations in Serbia<br><sup>1 January 2018 – 31 March 2026 · Source: ACLED (acleddata.com)</sup>",
-            font=dict(size=17, color="#e8e0d5"), x=0, xanchor="left"
-        ),
-        xaxis=dict(tickformat="%b %Y", dtick="M12", tickangle=0,
-                   gridcolor="rgba(255,255,255,0.05)", linecolor="rgba(255,255,255,0.1)", color="#666"),
-        yaxis=dict(title="Number of protests per week",
-                   gridcolor="rgba(255,255,255,0.05)", linecolor="rgba(255,255,255,0.1)",
-                   color="#666", title_font=dict(size=11), zeroline=False),
-        legend=dict(orientation="h", y=-0.12, x=0,
-                    font=dict(color="#555", size=11), bgcolor="rgba(0,0,0,0)"),
-        margin=dict(t=90, b=60, l=65, r=20),
-        hovermode="x unified",
-        hoverlabel=dict(bgcolor="#1a1a1a", bordercolor="#333",
-                        font=dict(color="#e8e0d5", family="Libre Baskerville,serif")),
-        height=500
-    )
-    st.plotly_chart(fig, use_container_width=True)
-
-st.markdown('<hr class="divider">', unsafe_allow_html=True)
-
-
-# ── SECTION 2: SCROLLYTELLING MAP ────────────────────────────────────────────
-# Map data: protests_serbia.csv — all protest events with coordinates.
-# Student flag: keyword match on notes field (same as R script).
-# Opacity per dot = frequency of protests at that location in same month.
-# Media files encoded as base64 so iframe can load them without security errors.
-
-# ── Encode media as base64 ────────────────────────────────────────────────────
-def file_to_b64(path, mime):
-    full = os.path.join(BASE, path)
-    with open(full, "rb") as f:
-        return f"data:{mime};base64,{base64.b64encode(f.read()).decode()}"
-
-audio_b64 = file_to_b64("test.mp3", "audio/mpeg")
-photo_b64 = file_to_b64("test.png",  "image/png")
-
-# ── Load protests ─────────────────────────────────────────────────────────────
-protests_df = pd.read_csv(dp("protests_serbia.csv"))
-protests_df["event_date"] = pd.to_datetime(protests_df["event_date"])
-keywords = "student|university|fakultet|faculty|omladina|youth|young people"
-protests_df["is_student"] = protests_df["notes"].str.contains(keywords, case=False, na=False)
-
-def make_points(df, special_popups=None):
-    df = df.dropna(subset=["latitude","longitude"]).copy()
-    df["month_loc"] = df["location"].str.lower() + "_" + df["event_date"].dt.to_period("M").astype(str)
-    counts = df["month_loc"].value_counts().to_dict()
-    max_count = max(counts.values()) if counts else 1
-    points = []
-    for r in df.itertuples():
-        date_str  = str(r.event_date.date())
-        loc_lower = r.location.lower()
-        opacity   = round(0.25 + 0.65 * (counts.get(r.month_loc, 1) / max_count), 2)
-        popup     = special_popups.get((loc_lower, date_str)) if special_popups else None
-        points.append({
-            "lat": float(r.latitude), "lon": float(r.longitude),
-            "student": bool(r.is_student), "location": r.location,
-            "date": date_str, "opacity": opacity, "popup": popup,
-        })
-    return points
-
-# ── Phase data ────────────────────────────────────────────────────────────────
-map_data = {}
-
-# ACT 1 — November 2024, zooms to Novi Sad
-map_data["act1"] = make_points(protests_df[
-    (protests_df["event_date"] >= "2024-11-01") &
-    (protests_df["event_date"] <  "2024-12-01")
-])
-
-# ACT 2 — Nov 2024 – Feb 2025, voice note + photo popup
-map_data["act2"] = make_points(
-    protests_df[
-        (protests_df["event_date"] >= "2024-11-01") &
-        (protests_df["event_date"] <  "2025-03-01")
-    ],
-    special_popups={
-        ("novi sad", "2025-02-28"): {
-            "type": "audio", "file": audio_b64,
-            "caption": "Voice note — Novi Sad, 28 February 2025",
-        },
-        ("belgrade - savski venac", "2025-02-24"): {
-            "type": "photo", "file": photo_b64,
-            "caption": "Protest — Belgrade, 24 February 2025",
-        },
-    }
-)
-
-# ACT 3 — Mar 2025 – Feb 2026
-map_data["act3"] = make_points(protests_df[
-    (protests_df["event_date"] >= "2025-03-01") &
-    (protests_df["event_date"] <  "2026-03-01")
-])
-
-# ACT 4 — March 2026
-map_data["act4"] = make_points(protests_df[
-    protests_df["event_date"] >= "2026-03-01"
-])
-
-map_data_json = json.dumps(map_data)
 
 # ═══════════════════════════════════════════════════════════════════════════════
-# TEXT CONTENT — edit strings marked with  # ◀ TEXT HERE
+# Beg1 ── HEADER MAP (full-bleed, edge-to-edge)
+# Europe map greyed out; Serbia border in orange; headline overlaid left
+# Serbia's real border from world-atlas (Natural Earth, ISO 688) — exact match to map tiles
+# ◀ Beg1: replace headline text in the #headline div below
 # ═══════════════════════════════════════════════════════════════════════════════
-acts_1_2 = [
-    {
-        "period":  "November 2024",                          # ◀ TEXT HERE
-        "heading": "[Heading: November 2024]",               # ◀ TEXT HERE
-        "body":    "[Text: first paragraph]",                # ◀ TEXT HERE
-        "body2":   "[Text: second paragraph]",               # ◀ TEXT HERE
-        "map_key": "act1", "zoom_novi": True,
-    },
-    {
-        "period":  "November 2024 – February 2025",          # ◀ TEXT HERE
-        "heading": "[Heading: Nov 2024 – Feb 2025]",         # ◀ TEXT HERE
-        "body":    "[Text: first paragraph]",                # ◀ TEXT HERE
-        "body2":   "[Text: second paragraph]",               # ◀ TEXT HERE
-        "map_key": "act2", "zoom_novi": False,
-    },
-]
-
-acts_3_4 = [
-    {
-        "period":  "March 2025 – February 2026",             # ◀ TEXT HERE
-        "heading": "[Heading: Mar 2025 – Feb 2026]",         # ◀ TEXT HERE
-        "body":    "[Text: first paragraph]",                # ◀ TEXT HERE
-        "body2":   "[Text: second paragraph]",               # ◀ TEXT HERE
-        "map_key": "act3", "zoom_novi": False,
-    },
-    {
-        "period":  "March 2026",                             # ◀ TEXT HERE
-        "heading": "[Heading: March 2026]",                  # ◀ TEXT HERE
-        "body":    "[Text: first paragraph]",                # ◀ TEXT HERE
-        "body2":   "[Text: second paragraph]",               # ◀ TEXT HERE
-        "map_key": "act4", "zoom_novi": False,
-    },
-]
-
-# ── Scrollytelling HTML builder ───────────────────────────────────────────────
-def make_scrolly(acts_data, map_data_json, height=660):
-    acts_json = json.dumps(acts_data)
-    return f"""
-<html><head>
-<meta charset="utf-8">
+components.html("""
+<html><head><meta charset="utf-8">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/topojson-client@3/dist/topojson-client.min.js"></script>
 <style>
-* {{ margin:0; padding:0; box-sizing:border-box; }}
-body {{ background:#0a0a0a; font-family:'Times New Roman',serif; color:#e8e0d5; height:{height}px; overflow:hidden; }}
-#scrolly {{ display:flex; height:{height}px; width:100%; }}
-#steps {{ flex:0 0 40%; height:{height}px; overflow-y:scroll; padding:0 1.5rem 0 0.5rem; scrollbar-width:none; }}
-#steps::-webkit-scrollbar {{ display:none; }}
-#map-col {{ flex:0 0 60%; height:{height}px; position:relative; }}
-#map {{ width:100%; height:100%; border-radius:3px; }}
-.step {{ min-height:{height-60}px; display:flex; flex-direction:column; justify-content:center; padding:2rem 0; border-bottom:1px solid #1e1e1e; opacity:0.3; transition:opacity 0.5s; }}
-.step.active {{ opacity:1; }}
-.step:last-child {{ min-height:400px; border-bottom:none; }}
-.s-period {{ font-size:0.62rem; letter-spacing:0.18em; text-transform:uppercase; color:#cc3333; margin-bottom:0.3rem; }}
-.s-heading {{ font-size:1.25rem; font-weight:normal; color:#e8e0d5; line-height:1.3; margin-bottom:0.9rem; margin-top:0.4rem; }}
-.s-body {{ font-size:0.88rem; line-height:1.85; color:#a89f94; margin-bottom:0.7rem; }}
-#period-lbl {{ position:absolute; top:14px; left:14px; background:rgba(10,10,10,0.9); border:1px solid #2a2a2a; border-radius:3px; padding:6px 12px; z-index:1000; font-size:0.62rem; letter-spacing:0.15em; text-transform:uppercase; color:#cc3333; pointer-events:none; }}
-#legend {{ position:absolute; bottom:14px; left:14px; background:rgba(10,10,10,0.9); border:1px solid #2a2a2a; border-radius:3px; padding:10px 14px; z-index:1000; font-size:11px; color:#a89f94; pointer-events:none; }}
-.li {{ display:flex; align-items:center; gap:7px; margin-bottom:5px; }}
-.li:last-child {{ margin-bottom:0; }}
-.dot {{ width:8px; height:8px; border-radius:50%; flex-shrink:0; }}
-.op-row {{ display:flex; align-items:center; gap:4px; margin-top:7px; padding-top:7px; border-top:1px solid #2a2a2a; font-size:10px; color:#555; }}
-.op-dot {{ width:9px; height:9px; border-radius:50%; background:#e07b39; flex-shrink:0; }}
-.leaflet-popup-content-wrapper {{ background:#111 !important; border:1px solid #333 !important; border-radius:3px !important; box-shadow:none !important; color:#e8e0d5 !important; font-family:'Times New Roman',serif !important; }}
-.leaflet-popup-tip {{ background:#111 !important; }}
-.leaflet-popup-content {{ margin:10px 14px !important; min-width:180px; }}
-.p-caption {{ font-size:10px; color:#666; margin:5px 0 4px 0; }}
-.p-audio {{ width:100%; margin-top:4px; }}
-.p-img {{ width:180px; border-radius:2px; display:block; margin-top:4px; }}
-.leaflet-popup-close-button {{ color:#888 !important; }}
-.leaflet-tile-pane {{ filter:grayscale(0.15) brightness(0.93); }}
-.leaflet-control-attribution {{ display:none; }}
-.leaflet-control-zoom a {{ background:#fff !important; color:#333 !important; border-color:#ccc !important; }}
-.leaflet-tooltip {{ background:#111; border:1px solid #333; color:#ccc; font-size:11px; padding:3px 7px; border-radius:2px; box-shadow:none; font-family:'Times New Roman',serif; }}
-</style>
-</head><body>
-<div id="scrolly">
-  <div id="steps"></div>
-  <div id="map-col">
-    <div id="map"></div>
-    <div id="period-lbl"></div>
-    <div id="legend">
-      <div class="li"><div class="dot" style="background:#e07b39;"></div><span>Protest event (1 dot = 1 event)</span></div>
-      <div class="li"><div class="dot" style="background:#7ab8f5;"></div><span>Student protest</span></div>
-      <div class="li" id="l-novi" style="display:none;"><div class="dot" style="background:#cc3333;width:10px;height:10px;"></div><span>Novi Sad — collapse site</span></div>
-      <div class="li" id="l-audio" style="display:none;"><span style="font-size:14px;line-height:1;">🎙</span><span>Click marker for voice note</span></div>
-      <div class="li" id="l-photo" style="display:none;"><span style="font-size:14px;line-height:1;">📷</span><span>Click marker for photo</span></div>
-      <div class="op-row">
-        <div class="op-dot" style="opacity:0.25;"></div>
-        <div class="op-dot" style="opacity:0.55;"></div>
-        <div class="op-dot" style="opacity:0.9;"></div>
-        <span style="margin-left:2px;">Opacity = protest frequency at location</span>
-      </div>
+*{margin:0;padding:0;box-sizing:border-box;}
+html,body{background:#0d0d0d;width:100%;height:100%;overflow:hidden;}
+#mapwrap{position:relative;width:100%;height:400px;}
+#map{width:100%;height:400px;}
+.leaflet-tile-pane{filter:grayscale(1) brightness(0.28) contrast(1.2);}
+.leaflet-control-attribution,.leaflet-control-zoom{display:none;}
+#overlay{
+  position:absolute;top:0;left:0;width:100%;height:400px;
+  z-index:1000;pointer-events:none;
+  display:flex;align-items:center;padding:0 4%;
+}
+#headline{
+  font-family:Georgia,serif;
+  font-size:clamp(1.6rem,3.2vw,3rem);
+  font-weight:600;color:#f0ece6;line-height:1.2;max-width:50%;
+  text-shadow:0 2px 16px rgba(0,0,0,0.95),0 0 60px rgba(0,0,0,0.85);
+}
+#fade{
+  position:absolute;bottom:0;left:0;width:100%;height:90px;
+  background:linear-gradient(to bottom,transparent,#0d0d0d);
+  z-index:999;pointer-events:none;
+}
+</style></head><body>
+<div id="mapwrap">
+  <div id="map"></div>
+  <div id="fade"></div>
+  <div id="overlay">
+    <div id="headline">
+      <!-- ◀ Beg1: HEADLINE — replace with actual title -->
+      [Headline: Title<br>of the piece]
     </div>
   </div>
 </div>
 <script>
-const DATA = {map_data_json};
-const ACTS = {acts_json};
+// Center: Europe on left for title, Serbia fully visible on right
+const map=L.map("map",{
+  center:[46,15],zoom:5,
+  zoomControl:false,scrollWheelZoom:false,
+  dragging:false,touchZoom:false,doubleClickZoom:false,keyboard:false
+});
+L.tileLayer("https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png",
+  {subdomains:"abcd",maxZoom:7}).addTo(map);
 
-const stepsEl = document.getElementById('steps');
-ACTS.forEach((a,i) => {{
-  const d = document.createElement('div');
-  d.className = 'step'+(i===0?' active':'');
-  d.dataset.idx = i;
-  d.innerHTML = `<div class="s-period">${{a.period}}</div><h2 class="s-heading">${{a.heading}}</h2><p class="s-body">${{a.body}}</p><p class="s-body">${{a.body2}}</p>`;
-  stepsEl.appendChild(d);
-}});
-
-const map = L.map('map',{{center:[44.2,21.0],zoom:7,zoomControl:true,scrollWheelZoom:false}});
-L.tileLayer('https://{{s}}.basemaps.cartocdn.com/light_all/{{z}}/{{x}}/{{y}}{{r}}.png',{{subdomains:'abcd',maxZoom:12}}).addTo(map);
-
-const pLayer = L.layerGroup().addTo(map);
-const nLayer = L.layerGroup();
-L.circleMarker([45.2671,19.8335],{{radius:18,color:'#cc3333',weight:1.5,fillColor:'#cc3333',fillOpacity:0.15}}).addTo(nLayer);
-L.circleMarker([45.2671,19.8335],{{radius:5,color:'#cc3333',weight:0,fillColor:'#cc3333',fillOpacity:1}}).bindPopup('<b>Novi Sad</b><br>Train station canopy collapse<br>1 November 2024').addTo(nLayer);
-
-function render(act) {{
-  pLayer.clearLayers();
-  const pts = DATA[act.map_key]||[];
-  const MAX = 900;
-  const step = pts.length>MAX ? Math.ceil(pts.length/MAX) : 1;
-  pts.forEach((p,i) => {{
-    if (i%step!==0 && !p.popup) return;
-    let marker;
-    if (p.popup) {{
-      const emoji = p.popup.type==='audio' ? '🎙' : '📷';
-      const icon = L.divIcon({{html:`<div style="font-size:20px;line-height:1;filter:drop-shadow(0 1px 3px rgba(0,0,0,0.8));cursor:pointer;">${{emoji}}</div>`,className:'',iconAnchor:[10,10]}});
-      marker = L.marker([p.lat,p.lon],{{icon}});
-      let html = `<b>${{p.location}}</b> &middot; ${{p.date}}`;
-      if (p.popup.type==='audio') {{
-        html += `<p class="p-caption">${{p.popup.caption}}</p><audio class="p-audio" controls><source src="${{p.popup.file}}" type="audio/mpeg">Your browser does not support audio.</audio>`;
-      }} else {{
-        html += `<p class="p-caption">${{p.popup.caption}}</p><img class="p-img" src="${{p.popup.file}}" alt="${{p.popup.caption}}">`;
-      }}
-      marker.bindPopup(html,{{maxWidth:220,minWidth:180}});
-    }} else {{
-      const color = p.student?'#7ab8f5':'#e07b39';
-      marker = L.circleMarker([p.lat,p.lon],{{radius:p.student?4:3,color,weight:0,fillColor:color,fillOpacity:p.opacity||0.6}});
-      marker.bindTooltip(`${{p.location}} &middot; ${{p.date}}`,{{permanent:false,direction:'top'}});
-    }}
-    marker.addTo(pLayer);
-  }});
-  if (act.zoom_novi) {{
-    map.addLayer(nLayer);
-    map.setView([45.2671,19.8335],10,{{animate:true,duration:1.2}});
-    document.getElementById('l-novi').style.display='flex';
-  }} else {{
-    map.removeLayer(nLayer);
-    map.setView([44.2,21.0],7,{{animate:true,duration:1.2}});
-    document.getElementById('l-novi').style.display='none';
-  }}
-  document.getElementById('period-lbl').textContent=act.period;
-  const hasAudio=(DATA[act.map_key]||[]).some(p=>p.popup&&p.popup.type==='audio');
-  const hasPhoto=(DATA[act.map_key]||[]).some(p=>p.popup&&p.popup.type==='photo');
-  document.getElementById('l-audio').style.display=hasAudio?'flex':'none';
-  document.getElementById('l-photo').style.display=hasPhoto?'flex':'none';
-}}
-
-let cur=0;
-render(ACTS[0]);
-const sd=document.getElementById('steps');
-sd.addEventListener('scroll',()=>{{
-  const mid=sd.scrollTop+sd.clientHeight*0.5;
-  let a=0;
-  document.querySelectorAll('.step').forEach((el,i)=>{{if(el.offsetTop<=mid)a=i;}});
-  if(a!==cur){{
-    cur=a;
-    document.querySelectorAll('.step').forEach(s=>s.classList.remove('active'));
-    document.querySelectorAll('.step')[a].classList.add('active');
-    render(ACTS[a]);
-  }}
-}});
+// Serbia real border from Natural Earth via world-atlas npm package.
+// ISO 3166-1 numeric 688 = Serbia.
+// fillOpacity:0 = outline only, no fill. Exactly matches the map tile borders.
+fetch("https://cdn.jsdelivr.net/npm/world-atlas@2/countries-50m.json")
+  .then(r=>r.json())
+  .then(world=>{
+    const all=topojson.feature(world,world.objects.countries);
+    const serbia=all.features.find(f=>f.id==="688");
+    if(serbia) L.geoJSON(serbia,{style:{color:"#d97941",weight:2,opacity:1,fillOpacity:0}}).addTo(map);
+  }).catch(()=>{});
 </script>
 </body></html>
-"""
-
-# ── Render ACT 1 + 2 ──────────────────────────────────────────────────────────
-components.html(make_scrolly(acts_1_2, map_data_json), height=660, scrolling=False)
+""", height=400, scrolling=False)
 
 
-# ── INTERLUDE: LINE CHART ─────────────────────────────────────────────────────
-st.markdown("""
-<div style="border-top:1px solid #1e1e1e; border-bottom:1px solid #1e1e1e;
-     padding:1.8rem 0; margin:0; display:flex; align-items:center; gap:1.5rem;">
-  <div style="flex:1; height:1px; background:#1e1e1e;"></div>
-  <p style="font-size:0.65rem; letter-spacing:0.2em; text-transform:uppercase;
-     color:#cc3333; white-space:nowrap; margin:0;">The Data</p>
-  <div style="flex:1; height:1px; background:#1e1e1e;"></div>
+# ── Sentinel helper for timeline tracking ─────────────────────────────────────
+def sentinel(i):
+    st.markdown(
+        f'<div id="tl-s{i}" style="height:0;margin:0;padding:0;pointer-events:none;"></div>',
+        unsafe_allow_html=True)
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# MAIN TWO-COLUMN LAYOUT
+# Left column (0.09): timeline OV1
+# Right column (0.91): all article content
+# Padding added via extra thin outer columns
+# ═══════════════════════════════════════════════════════════════════════════════
+_, col_tl, col_content, _ = st.columns([0.02, 0.08, 0.88, 0.02], gap="small")
+
+# ── OV1: Timeline column ──────────────────────────────────────────────────────
+with col_tl:
+    components.html("""
+<html><head><style>
+*{margin:0;padding:0;box-sizing:border-box;}
+html,body{background:#0d0d0d;width:100%;height:100%;}
+#wrap{width:100%;min-height:6000px;position:relative;
+  display:flex;flex-direction:column;align-items:center;padding:16px 0;}
+svg{display:block;width:20px;flex:1;overflow:visible;min-height:5960px;}
+.lbl{position:absolute;right:2px;transform:translateY(-50%);
+  font-size:10.5px;font-family:Georgia,serif;white-space:nowrap;transition:color .4s;}
+</style></head><body>
+<div id="wrap"><svg id="svg" preserveAspectRatio="none"></svg></div>
+<script>
+const times=['11:52','11:53','11:54','11:55','11:56','11:57','11:58','11:59',
+  '12:00','12:01','12:02','12:03','12:04','12:05','12:06','12:07','12:08'];
+const N=times.length;
+const wrap=document.getElementById('wrap');
+const svg=document.getElementById('svg');
+let circles=[],labels=[],current=0;
+
+function draw(){
+  const h=wrap.offsetHeight-32;if(h<200)return;
+  svg.style.height=h+'px';svg.setAttribute('viewBox','0 0 20 '+h);
+  svg.innerHTML='';wrap.querySelectorAll('.lbl').forEach(e=>e.remove());
+  circles=[];labels=[];
+  const ln=document.createElementNS('http://www.w3.org/2000/svg','line');
+  ln.setAttribute('x1',10);ln.setAttribute('y1',0);
+  ln.setAttribute('x2',10);ln.setAttribute('y2',h);
+  ln.setAttribute('stroke','#3a3835');ln.setAttribute('stroke-width','1.5');
+  svg.appendChild(ln);
+  times.forEach((t,i)=>{
+    const y=(i/(N-1))*h,isE=i===0||i===N-1;
+    const c=document.createElementNS('http://www.w3.org/2000/svg','circle');
+    c.setAttribute('cx',10);c.setAttribute('cy',y);c.setAttribute('r',isE?4.5:2.5);
+    c.setAttribute('fill','#3a3835');c.style.transition='fill .4s';
+    svg.appendChild(c);circles.push({el:c,isE});
+    const l=document.createElement('div');
+    l.className='lbl';l.textContent=t;l.style.top=(16+y)+'px';l.style.color='#3a3835';
+    wrap.appendChild(l);labels.push(l);
+  });
+  setActive(0);
+}
+function setActive(idx){
+  if(idx===current&&circles.length)return;current=idx;
+  circles.forEach(({el,isE},i)=>{
+    if(i===idx){el.setAttribute('fill','#d97941');el.setAttribute('r',isE?5.5:4);}
+    else if(i<idx){el.setAttribute('fill','#4a4845');el.setAttribute('r',isE?3.5:2);}
+    else{el.setAttribute('fill','#3a3835');el.setAttribute('r',isE?4.5:2.5);}
+  });
+  labels.forEach((l,i)=>{
+    l.style.color=i===idx?'#d97941':i<idx?'#4a4845':'#3a3835';
+  });
+}
+function pollSentinels(){
+  try{
+    const p=window.parent,center=p.window.innerHeight/2;
+    let best=0,bestDist=Infinity;
+    for(let i=0;i<N;i++){
+      const el=p.document.getElementById('tl-s'+i);if(!el)continue;
+      const dist=Math.abs(el.getBoundingClientRect().top-center);
+      if(dist<bestDist){bestDist=dist;best=i;}
+    }
+    setActive(best);
+  }catch(e){}
+}
+setTimeout(draw,300);setTimeout(draw,900);
+window.addEventListener('resize',draw);setInterval(pollSentinels,120);
+</script></body></html>
+""", height=6100, scrolling=False)
+
+# ── Content column ────────────────────────────────────────────────────────────
+with col_content:
+
+    # ──────────────────────────────────────────────────────────────────────────
+    # BEGINNING
+    # ──────────────────────────────────────────────────────────────────────────
+
+    # Beg2 ── TEASER (italic, gray, below header map)
+    # ◀ Beg2: replace placeholder with your teaser text
+    st.markdown('<p class="teaser">[Teaser: 2–3 sentence introduction to the story in italic.]</p>',
+                unsafe_allow_html=True)
+    st.markdown('<hr class="sec-divider">', unsafe_allow_html=True)
+
+    # Beg3 ── AUTHOR LINE
+    # ◀ Beg3: replace names if needed
+    st.markdown('<p class="author-line">Sophie Eder · Laura Lugmair · Sara Comendador</p>',
+                unsafe_allow_html=True)
+    st.markdown('<div style="margin-bottom:1.2rem;"></div>', unsafe_allow_html=True)
+
+    # ──────────────────────────────────────────────────────────────────────────
+    # PAST
+    # ──────────────────────────────────────────────────────────────────────────
+
+    # PA1 ── First text block  [TIMELINE START]
+    sentinel(0)
+    # ◀ PA1: replace with your first full-width paragraph
+    st.markdown("""
+<p class="body-text">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur, excepteur sint occaecat cupidatat non proident qui officia deserunt mollit anim id est laborum et dolore magna aliqua ut enim veniam.</p>
+""", unsafe_allow_html=True)
+
+    # PA2 ── Text (~80-90 words) left  +  X-Post right
+    sentinel(1)
+    col_pa2t, col_pa2x = st.columns([1.2, 0.9], gap="large")
+    with col_pa2t:
+        # ◀ PA2: replace with your text (~80-90 words, ends at the same point as the post)
+        # PA3 content can be combined here to fill the column beside the post
+        st.markdown("""
+<p class="body-text">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident deserunt mollit anim id est laborum et dolore magna aliqua.</p>
+<p class="body-text">Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo nemo enim ipsam.</p>
+""", unsafe_allow_html=True)
+    with col_pa2x:
+        # X-Post: https://twitter.com/bianconerobgd/status/1852345088174604535
+        components.html("""
+<html><head><meta charset="utf-8"></head>
+<body style="margin:0;padding:0;background:#0d0d0d;overflow:hidden;">
+<blockquote class="twitter-tweet" data-theme="dark" data-width="320" data-dnt="true">
+  <a href="https://twitter.com/bianconerobgd/status/1852345088174604535"></a>
+</blockquote>
+<script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+</body></html>
+""", height=680, scrolling=False)
+
+    # PA4 ── Line chart (left, wider)  +  text box (right, narrow)
+    sentinel(2)
+    # ◀ PA4 chart title: replace placeholder
+    st.markdown('<p class="chart-title">[PA4 — Chart title: Protest Activity in Serbia, 2018–2026]</p>',
+                unsafe_allow_html=True)
+
+    col_pa4c, col_pa4t = st.columns([2.8, 1], gap="small")
+    with col_pa4t:
+        st.markdown("<div style='height:2rem'></div>", unsafe_allow_html=True)
+        # ◀ PA4b: replace with your sidebar text (~60-70 words)
+        st.markdown("""
+<div class="ctx-box">
+  <p class="ctx-text">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit.</p>
 </div>
 """, unsafe_allow_html=True)
 
-col_chart, col_text = st.columns([1.8, 1], gap="large")
+    with col_pa4c:
+        # Line chart: All protests (blue) vs Youth-related (orange)
+        # Toggle switches between them; red dashed line marks Nov 2024
+        components.html(f"""
+<html><head><meta charset="utf-8">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+*{{margin:0;padding:0;box-sizing:border-box;}}
+body{{background:#0d0d0d;font-family:Georgia,serif;color:#e8e4de;padding:4px 0 8px;}}
+#tog{{display:flex;align-items:center;gap:10px;margin-bottom:10px;}}
+.lbl{{font-size:13px;cursor:pointer;transition:color .3s;user-select:none;}}
+.lbl.on{{color:#e8e4de;}}.lbl.off{{color:#2a2a2a;}}
+.track{{width:44px;height:22px;background:#cc3333;border-radius:22px;cursor:pointer;position:relative;flex-shrink:0;}}
+.thumb{{position:absolute;top:3px;left:3px;width:16px;height:16px;background:#fff;border-radius:50%;transition:transform .25s;pointer-events:none;}}
+.track.on .thumb{{transform:translateX(22px);}}
+.dot{{width:10px;height:3px;border-radius:2px;display:inline-block;margin-right:4px;}}
+#wrap{{height:370px;}}
+canvas{{width:100%!important;height:370px!important;}}
+#cap{{font-size:13px;color:#8a8580;margin-top:6px;line-height:1.5;font-style:italic;}}
+</style></head><body>
+<div id="tog">
+  <span class="lbl on"><span class="dot" style="background:#4a90d9;vertical-align:middle;"></span>All protests</span>
+  <div class="track" id="track" onclick="toggle()"><div class="thumb"></div></div>
+  <span class="lbl off"><span class="dot" style="background:#d97941;vertical-align:middle;"></span>Youth-related protests</span>
+</div>
+<div id="wrap"><canvas id="c"></canvas></div>
+<div id="cap">
+  <!-- ◀ PA4 caption: replace with your source note -->
+  Weekly protest event count, Serbia, January 2018 – March 2026. Youth-related protests identified via keywords in ACLED event notes. Source: ACLED (acleddata.com).
+</div>
+<script>
+const D={weekly_json};
+const C_ALL='#4a90d9',C_YOUTH='#d97941';
+let youth=false;
+const labels=D.map(d=>d.w);
+const noviIdx=labels.findIndex(l=>l>='2024-11-01');
+const ctx=document.getElementById('c').getContext('2d');
+const chart=new Chart(ctx,{{
+  type:'line',
+  data:{{labels,datasets:[
+    {{data:D.map(d=>d.a),borderColor:C_ALL,borderWidth:2,pointRadius:0,tension:.3,fill:false}},
+    {{data:D.map(d=>d.y),borderColor:'rgba(255,255,255,.05)',borderWidth:1,pointRadius:0,tension:.3,fill:false}}
+  ]}},
+  options:{{
+    animation:{{duration:600,easing:'easeInOutQuart'}},
+    responsive:true,maintainAspectRatio:false,
+    interaction:{{mode:'index',intersect:false}},
+    plugins:{{legend:{{display:false}},tooltip:{{
+      backgroundColor:'#1a1a1a',borderColor:'#2a2a2a',borderWidth:1,
+      titleColor:'#e8e4de',bodyColor:'#7a7570',
+      callbacks:{{label:c=>c.datasetIndex===0?c.parsed.y+' protests':''}}
+    }}}},
+    scales:{{
+      x:{{ticks:{{color:'#5a5651',maxTicksLimit:9,font:{{size:11}},
+          callback:(v,i)=>{{const d=labels[i];return d&&d.endsWith('-01-01')?d.slice(0,4):''}}}},
+         grid:{{color:'rgba(255,255,255,.03)'}},border:{{color:'rgba(255,255,255,.05)'}}}},
+      y:{{ticks:{{color:'#5a5651',font:{{size:11}}}},grid:{{color:'rgba(255,255,255,.03)'}},
+         border:{{color:'rgba(255,255,255,.05)'}},
+         title:{{display:true,text:'Protests per week',color:'#5a5651',font:{{size:11}}}}}}
+    }}
+  }},
+  plugins:[{{
+    id:'noviLine',
+    afterDraw(chart){{
+      if(noviIdx<0)return;
+      const meta=chart.getDatasetMeta(0);
+      if(!meta.data[noviIdx])return;
+      const x=meta.data[noviIdx].x;
+      const{{top,bottom}}=chart.scales.y;
+      const c2=chart.ctx;
+      c2.save();
+      c2.setLineDash([6,4]);c2.strokeStyle='#cc3333';c2.lineWidth=2;
+      c2.beginPath();c2.moveTo(x,top);c2.lineTo(x,bottom);c2.stroke();
+      c2.setLineDash([]);
+      c2.textAlign='right';c2.font='bold 11px Georgia';c2.fillStyle='#cc3333';
+      c2.fillText('Nov 2024 |',x-8,top+14);
+      c2.font='10px Georgia';
+      c2.fillText('Collapse of a concrete',x-8,top+27);
+      c2.fillText('Canopy in Novi Sad',x-8,top+40);
+      c2.textAlign='left';c2.restore();
+    }}
+  }}]
+}});
+function toggle(){{
+  youth=!youth;
+  document.getElementById('track').classList.toggle('on',youth);
+  const lbls=document.getElementById('tog').querySelectorAll('.lbl');
+  if(lbls.length>=2){{lbls[0].className='lbl '+(youth?'off':'on');lbls[1].className='lbl '+(youth?'on':'off');}}
+  if(youth){{chart.data.datasets[0].borderColor='rgba(255,255,255,.05)';chart.data.datasets[1].borderColor=C_YOUTH;chart.data.datasets[1].borderWidth=2;}}
+  else{{chart.data.datasets[0].borderColor=C_ALL;chart.data.datasets[1].borderColor='rgba(255,255,255,.05)';chart.data.datasets[1].borderWidth=1;}}
+  chart.update('active');
+}}
+</script></body></html>
+""", height=450)
 
-with col_text:
+    # PA5 ── Text block
+    sentinel(3)
+    # ◀ PA5: replace with your paragraph
     st.markdown("""
-    <div style="display:flex; flex-direction:column; justify-content:center; height:100%; padding-top:1rem;">
-      <p style="font-size:0.62rem; letter-spacing:0.18em; text-transform:uppercase; color:#cc3333; margin-bottom:0.3rem;">The Data</p>
-      <p style="font-size:0.65rem; letter-spacing:0.1em; color:#444; margin-bottom:0.9rem; text-transform:uppercase;">January 2018 – March 2026</p>
-      <h2 style="font-size:1.25rem; font-weight:normal; color:#e8e0d5; line-height:1.3; margin-bottom:0.9rem; font-family:'Libre Baskerville',serif;">
-        [Heading: what the data shows]
-      </h2>
-      <p style="font-size:0.88rem; line-height:1.85; color:#a89f94; margin-bottom:0.7rem; font-family:'Libre Baskerville',serif;">
-        [Text: explain what the chart shows]
-      </p>
-      <p style="font-size:0.88rem; line-height:1.85; color:#a89f94; font-family:'Libre Baskerville',serif;">
-        [Text: reference ITS finding — +43 protests per week]
-      </p>
-    </div>
-    """, unsafe_allow_html=True)
+<p class="body-text">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur, excepteur sint occaecat cupidatat non proident qui officia deserunt mollit anim id est laborum.</p>
+""", unsafe_allow_html=True)
 
-with col_chart:
-    tcol1, tcol2, tcol3 = st.columns([1.2, 0.4, 3])
-    with tcol1:
-        st.markdown('<p style="text-align:right; color:#e8e0d5; font-size:0.85rem; margin-top:6px; font-family:Libre Baskerville,serif;">All protests</p>', unsafe_allow_html=True)
-    with tcol2:
-        show_youth_2 = st.checkbox("", key="youth_toggle_2")
-    with tcol3:
-        st.markdown('<p style="color:#555; font-size:0.85rem; margin-top:6px; font-family:Libre Baskerville,serif;">Youth protests only</p>', unsafe_allow_html=True)
+    # PA6 ── Expandable "Serbia in Context"
+    # Uses native st.expander → content below shifts dynamically when opened/closed
+    sentinel(4)
+    with st.expander("Serbia in Context"):
+        # ◀ PA6: replace with your ~70-word context text (shown on light gray background)
+        st.markdown("""
+<p class="body-text">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur, excepteur sint occaecat cupidatat non proident qui officia deserunt mollit.</p>
+""", unsafe_allow_html=True)
 
-    weekly2 = pd.read_csv(dp("weekly_serbia.csv"))
-    weekly2["week"] = pd.to_datetime(weekly2["week"])
+    # PA7 ── Text block
+    sentinel(5)
+    # ◀ PA7: replace with your paragraph
+    st.markdown("""
+<p class="body-text">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur, excepteur sint occaecat cupidatat non proident qui officia deserunt mollit anim id est laborum.</p>
+""", unsafe_allow_html=True)
 
-    if show_youth_2:
-        active_y2, active_name2, active_color2 = weekly2["n_student_events"], "Youth protests only", COLOR_YOUTH
-        ghost_y2,  ghost_name2                 = weekly2["n_events"], "All protests"
-    else:
-        active_y2, active_name2, active_color2 = weekly2["n_events"], "All protests", COLOR_ALL
-        ghost_y2,  ghost_name2                 = weekly2["n_student_events"], "Youth protests only"
+    # PA8 ── Text block
+    # ◀ PA8: replace with your paragraph
+    st.markdown("""
+<p class="body-text">Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo. Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt.</p>
+""", unsafe_allow_html=True)
 
-    fig2 = go.Figure()
-    fig2.add_trace(go.Scatter(
-        x=weekly2["week"], y=ghost_y2, name=ghost_name2, mode="lines",
-        line=dict(color="rgba(255,255,255,0.08)", width=1.2), hoverinfo="skip"
-    ))
-    fig2.add_trace(go.Scatter(
-        x=weekly2["week"], y=active_y2, name=active_name2, mode="lines",
-        line=dict(color=active_color2, width=2),
-        hovertemplate="<b>%{x|%b %Y}</b><br>%{y} events<extra></extra>"
-    ))
-    fig2.add_vline(x="2024-11-01", line_dash="dash", line_color="#cc3333", line_width=1.5)
-    fig2.add_annotation(
-        x="2024-11-01", y=1, yref="paper", text="Nov 2024", showarrow=False,
-        xanchor="left", xshift=5,
-        font=dict(color="#cc3333", size=10, family="Libre Baskerville,serif"),
-        bgcolor="rgba(0,0,0,0)"
-    )
-    fig2.update_layout(
-        paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="#0f0f0f",
-        font=dict(family="Libre Baskerville,Times New Roman,serif", color="#888"),
-        title=dict(
-            text="Demonstrations in Serbia<br><sup>1 January 2018 – 31 March 2026 · Source: ACLED</sup>",
-            font=dict(size=15, color="#e8e0d5"), x=0, xanchor="left"
-        ),
-        xaxis=dict(tickformat="%b %Y", dtick="M12",
-                   gridcolor="rgba(255,255,255,0.05)", linecolor="rgba(255,255,255,0.1)", color="#666"),
-        yaxis=dict(title="Protests per week",
-                   gridcolor="rgba(255,255,255,0.05)", linecolor="rgba(255,255,255,0.1)",
-                   color="#666", title_font=dict(size=11), zeroline=False),
-        legend=dict(orientation="h", y=-0.15, x=0,
-                    font=dict(color="#555", size=11), bgcolor="rgba(0,0,0,0)"),
-        margin=dict(t=80, b=60, l=60, r=20),
-        hovermode="x unified",
-        hoverlabel=dict(bgcolor="#1a1a1a", bordercolor="#333", font=dict(color="#e8e0d5")),
-        height=460
-    )
-    st.plotly_chart(fig2, use_container_width=True)
+    # PA9 ── Geographic spread map: Nov 2024 – Mar 2026
+    sentinel(6)
+    # ◀ PA9 chart title: replace placeholder
+    st.markdown('<p class="chart-title">[PA9 — Chart title: Geographic Spread of Protests, November 2024 – March 2026]</p>',
+                unsafe_allow_html=True)
+    components.html(f"""
+<html><head><meta charset="utf-8">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<style>
+*{{margin:0;padding:0;box-sizing:border-box;}}
+body{{background:#0d0d0d;font-family:Georgia,serif;color:#e8e4de;padding-bottom:.5rem;}}
+#map{{width:100%;height:420px;border-radius:3px;}}
+#leg{{position:absolute;top:10px;right:10px;z-index:1000;background:rgba(13,13,13,.92);
+  border:1px solid #2a2a2a;border-radius:3px;padding:9px 13px;font-size:12px;color:#a09b95;line-height:1.9;pointer-events:none;}}
+.li{{display:flex;align-items:center;gap:7px;}}.dot{{width:8px;height:8px;border-radius:50%;flex-shrink:0;}}
+.leg-note{{font-size:12px;color:#8a8580;margin-top:5px;padding-top:5px;border-top:1px solid #1f1f1f;}}
+#ctrl{{display:flex;align-items:center;gap:10px;margin-top:8px;flex-wrap:wrap;}}
+#mlbl{{font-size:13px;color:#d97941;min-width:76px;font-style:italic;font-weight:600;}}
+#slw{{flex:1;min-width:140px;}}
+#msl{{width:100%;accent-color:#d97941;cursor:pointer;height:3px;}}
+#playbtn{{background:#1a1a1a;border:1px solid #2a2a2a;color:#e8e4de;font-size:18px;
+  width:34px;height:34px;border-radius:50%;cursor:pointer;display:flex;align-items:center;
+  justify-content:center;transition:background .2s;flex-shrink:0;}}
+#playbtn:hover{{background:#252525;}}
+#mrow{{display:flex;align-items:center;gap:8px;}}
+.ms{{font-size:11px;cursor:pointer;transition:color .3s;user-select:none;color:#6a6560;}}
+.ms.on{{color:#e8e4de;}}
+.track-s{{width:38px;height:18px;background:#cc3333;border-radius:18px;cursor:pointer;position:relative;flex-shrink:0;}}
+.thumb-s{{position:absolute;top:2px;left:2px;width:14px;height:14px;background:#fff;border-radius:50%;transition:transform .25s;pointer-events:none;}}
+.track-s.on .thumb-s{{transform:translateX(20px);}}
+.mhint{{font-size:10px;color:#4a4845;font-style:italic;}}
+#cap{{font-size:13px;color:#8a8580;margin-top:6px;line-height:1.6;font-style:italic;}}
+.leaflet-tile-pane{{filter:grayscale(1) brightness(.85) contrast(1.1);}}
+.leaflet-control-attribution{{display:none;}}
+.leaflet-control-zoom a{{background:#1a1a1a !important;color:#888 !important;border-color:#2a2a2a !important;}}
+.leaflet-tooltip{{background:#111;border:1px solid #2a2a2a;color:#e8e4de;font-size:11px;padding:3px 8px;border-radius:2px;box-shadow:none;}}
+#mwrap{{position:relative;}}
+</style></head><body>
+<div id="mwrap">
+  <div id="map"></div>
+  <div id="leg">
+    <div class="li"><div class="dot" style="background:#d97941;"></div><span>Youth-related protests</span></div>
+    <div class="li"><div class="dot" style="background:#4a90d9;"></div><span>All other protests</span></div>
+    <div class="leg-note">1 dot = 1 protest event · ACLED 2026</div>
+  </div>
+</div>
+<div id="ctrl">
+  <button id="playbtn" onclick="togglePlay()">&#9654;</button>
+  <div id="mlbl">Nov 2024</div>
+  <div id="slw"><input type="range" id="msl" min="0" max="{n_months-1}" value="0" step="1"></div>
+  <div id="mrow">
+    <span class="ms on" id="lbl-m">Monthly</span>
+    <div class="track-s" id="track-m" onclick="toggleMode()"><div class="thumb-s"></div></div>
+    <span class="ms" id="lbl-c">Cumulative</span>
+    <span class="mhint" id="mhint">— showing this month only</span>
+  </div>
+</div>
+<div id="cap">
+  <!-- ◀ PA9 caption: describe what the map shows and add data source -->
+  Protest events in Serbia from November 2024 onwards. Orange = all protest events; blue = youth-related. Use the slider or Play button to move through time. Toggle between Monthly (events that month only) and Cumulative (all events up to that month). Data: ACLED, 2026.
+</div>
+<script>
+const M={map_json};const MONTHS={months_json};
+const map=L.map('map',{{center:[44.2,21.0],zoom:7,zoomControl:true,scrollWheelZoom:false}});
+L.tileLayer('https://{{s}}.basemaps.cartocdn.com/light_all/{{z}}/{{x}}/{{y}}{{r}}.png',{{subdomains:'abcd',maxZoom:12}}).addTo(map);
+const layer=L.layerGroup().addTo(map);
+let mode='monthly',cur=0,playing=false,timer=null;
+function fmt(s){{const[y,mo]=s.split('-');return['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][parseInt(mo)-1]+' '+y;}}
+function render(idx){{
+  layer.clearLayers();let pts=[];
+  if(mode==='cumulative')for(let i=0;i<=idx;i++)pts=pts.concat(M[MONTHS[i]]||[]);
+  else pts=M[MONTHS[idx]]||[];
+  pts.forEach(p=>{{const c=p.s?'#d97941':'#4a90d9';
+    L.circleMarker([p.la,p.lo],{{radius:p.s?4:3,color:c,weight:0,fillColor:c,fillOpacity:.7}})
+     .bindTooltip(p.n,{{permanent:false,direction:'top'}}).addTo(layer);}});
+  document.getElementById('mlbl').textContent=fmt(MONTHS[idx]);
+  document.getElementById('msl').value=idx;
+}}
+function toggleMode(){{
+  const isCumul=mode==='cumulative';mode=isCumul?'monthly':'cumulative';
+  document.getElementById('track-m').classList.toggle('on',!isCumul);
+  document.getElementById('lbl-m').className='ms'+(mode==='monthly'?' on':'');
+  document.getElementById('lbl-c').className='ms'+(mode==='cumulative'?' on':'');
+  document.getElementById('mhint').textContent=mode==='cumulative'?'— all events up to this month':'— showing this month only';
+  render(cur);
+}}
+function togglePlay(){{
+  playing=!playing;const btn=document.getElementById('playbtn');
+  if(playing){{btn.innerHTML='&#9646;&#9646;';if(cur>=MONTHS.length-1)cur=0;
+    timer=setInterval(()=>{{cur++;render(cur);if(cur>=MONTHS.length-1){{playing=false;clearInterval(timer);btn.innerHTML='&#9654;';}}}},700);
+  }}else{{clearInterval(timer);btn.innerHTML='&#9654;';}}
+}}
+document.getElementById('msl').addEventListener('input',e=>{{cur=parseInt(e.target.value);render(cur);}});
+const obs=new IntersectionObserver(e=>{{if(e[0].isIntersecting&&!playing&&cur===0)togglePlay();}},{{threshold:.5}});
+obs.observe(document.getElementById('map'));
+render(0);
+</script></body></html>
+""", height=560, scrolling=False)
 
-st.markdown('<div style="border-top:1px solid #1e1e1e; margin:0;"></div>', unsafe_allow_html=True)
+    # PA10a ── Text block
+    sentinel(7)
+    # ◀ PA10a: replace with your paragraph
+    st.markdown("""
+<p class="body-text">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur, excepteur sint occaecat cupidatat non proident qui officia deserunt mollit anim id est laborum.</p>
+""", unsafe_allow_html=True)
 
+    # PA10b ── X-Post left  +  text right (~22 words, PA11 combined)
+    sentinel(8)
+    col_pa10x, col_pa10t = st.columns([0.9, 1.2], gap="large")
+    with col_pa10x:
+        # X-Post: https://twitter.com/visegrad24/status/1902376760555065655
+        components.html("""
+<html><head><meta charset="utf-8"></head>
+<body style="margin:0;padding:0;background:#0d0d0d;overflow:hidden;">
+<blockquote class="twitter-tweet" data-theme="dark" data-width="320" data-dnt="true">
+  <a href="https://twitter.com/visegrad24/status/1902376760555065655"></a>
+</blockquote>
+<script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+</body></html>
+""", height=680, scrolling=False)
+    with col_pa10t:
+        # ◀ PA10b + PA11: replace with your text (right column, ~22 + additional words)
+        st.markdown("""
+<p class="body-text">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo.</p>
+<p class="body-text">Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo nemo enim ipsam voluptatem quia voluptas aspernatur.</p>
+""", unsafe_allow_html=True)
 
-# ── Render ACT 3 + 4 ──────────────────────────────────────────────────────────
-components.html(make_scrolly(acts_3_4, map_data_json), height=660, scrolling=False)
+    st.markdown('<hr class="divider">', unsafe_allow_html=True)
 
+    # ──────────────────────────────────────────────────────────────────────────
+    # PRESENT
+    # ──────────────────────────────────────────────────────────────────────────
 
-# ── FOOTER ────────────────────────────────────────────────────────────────────
-st.markdown("""
-<p style="font-size:0.75rem; color:#444; text-align:center; margin-top:3rem;">
-Data Source: Armed Conflict Location & Event Data (ACLED), 2026.
-Serbia, January 2018 – March 2026. acleddata.com
-</p>
+    # PRE1 ── Section heading
+    sentinel(9)
+    # ◀ PRE1: replace with your section heading
+    st.markdown('<h2 class="section-title">[PRE1 — Section heading: e.g. "The Movement Today"]</h2>',
+                unsafe_allow_html=True)
+
+    # PRE2 ── Text block
+    # ◀ PRE2: replace with your paragraph
+    st.markdown("""
+<p class="body-text">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur, excepteur sint occaecat cupidatat non proident qui officia deserunt mollit anim id est laborum.</p>
+""", unsafe_allow_html=True)
+
+    # PRE3 ── Pull quote
+    sentinel(10)
+    # ◀ PRE3: replace quote text (~20 words) and attribution
+    st.markdown("""
+<div class="quote-box">
+  <div class="quote-text">"Lorem ipsum dolor sit amet, consectetur adipiscing elit — sed do eiusmod tempor incididunt."</div>
+  <div class="quote-attr">— [Name, role, date]</div>
+</div>
+""", unsafe_allow_html=True)
+
+    # PRE4 ── Bar chart: youth protests only, Mar 2025 – Mar 2026
+    # ◀ PRE4 chart title: replace placeholder
+    st.markdown('<p class="chart-title">[PRE4 — Chart title: Youth-related Protest Activity, March 2025 – March 2026]</p>',
+                unsafe_allow_html=True)
+    components.html(f"""
+<html><head><meta charset="utf-8">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+*{{margin:0;padding:0;box-sizing:border-box;}}
+body{{background:#0d0d0d;font-family:Georgia,serif;color:#e8e4de;padding:4px 0 6px;}}
+#wrap{{height:300px;}}canvas{{width:100%!important;height:300px!important;}}
+#cap{{font-size:13px;color:#8a8580;margin-top:5px;line-height:1.5;font-style:italic;}}
+</style></head><body>
+<div id="wrap"><canvas id="c"></canvas></div>
+<div id="cap">
+  <!-- ◀ PRE4 caption: replace with your chart description and source note -->
+  Monthly count of youth-related protest events in Serbia, March 2025 – March 2026. Source: ACLED (acleddata.com).
+</div>
+<script>
+const BD={bar_json};let built=false;
+const ctx=document.getElementById('c').getContext('2d');
+function buildChart(){{
+  if(built)return;built=true;
+  new Chart(ctx,{{
+    type:'bar',
+    data:{{labels:BD.map(d=>d.m),datasets:[{{
+      data:BD.map(d=>d.y),backgroundColor:'rgba(217,121,65,.75)',
+      hoverBackgroundColor:'rgba(217,121,65,1)',borderRadius:2,borderSkipped:false
+    }}]}},
+    options:{{
+      animation:{{duration:900,easing:'easeOutQuart',delay:ctx=>ctx.dataIndex*60}},
+      responsive:true,maintainAspectRatio:false,
+      plugins:{{legend:{{display:false}},tooltip:{{
+        backgroundColor:'#1a1a1a',borderColor:'#2a2a2a',borderWidth:1,
+        titleColor:'#e8e4de',bodyColor:'#7a7570',
+        callbacks:{{label:c=>c.parsed.y+' youth protests'}}
+      }}}},
+      scales:{{
+        x:{{ticks:{{color:'#5a5651',font:{{size:11}}}},grid:{{display:false}},border:{{color:'rgba(255,255,255,.05)'}}}},
+        y:{{ticks:{{color:'#5a5651',font:{{size:11}}}},grid:{{color:'rgba(255,255,255,.03)'}},
+           border:{{color:'rgba(255,255,255,.05)'}},
+           title:{{display:true,text:'Youth protests per month',color:'#5a5651',font:{{size:11}}}}}}
+      }}
+    }}
+  }});
+}}
+const obs=new IntersectionObserver(e=>{{if(e[0].isIntersecting)buildChart();}},{{threshold:.4}});
+obs.observe(document.getElementById('wrap'));
+</script></body></html>
+""", height=350)
+
+    # PRE5 ── Text block
+    sentinel(11)
+    # ◀ PRE5: replace with your paragraph
+    st.markdown("""
+<p class="body-text">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.</p>
+""", unsafe_allow_html=True)
+
+    # PRE6 ── Text (~80 words, left)  +  Election map (right)
+    col_pre6t, col_pre6m = st.columns([1.1, 1], gap="large")
+    with col_pre6t:
+        # ◀ PRE6a: replace with your text (~80 words)
+        st.markdown("""
+<p class="body-text">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur, excepteur sint occaecat cupidatat non proident qui officia deserunt mollit anim id est laborum et dolore.</p>
+""", unsafe_allow_html=True)
+    with col_pre6m:
+        # PRE6b: 10 municipalities — hover/click shows election results
+        components.html(f"""
+<html><head><meta charset="utf-8">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<style>
+*{{margin:0;padding:0;box-sizing:border-box;}}body{{background:#0d0d0d;font-family:Georgia,serif;}}
+#map{{width:100%;height:270px;border-radius:3px;}}
+#cap{{font-size:13px;color:#8a8580;margin-top:6px;line-height:1.5;font-style:italic;}}
+.leaflet-tile-pane{{filter:grayscale(1) brightness(.85) contrast(1.1);}}
+.leaflet-control-attribution{{display:none;}}
+.leaflet-control-zoom a{{background:#1a1a1a !important;color:#888 !important;border-color:#2a2a2a !important;}}
+.leaflet-popup-content-wrapper{{background:#111;border:1px solid #333;border-radius:3px;box-shadow:none;color:#e8e4de;}}
+.leaflet-popup-tip{{background:#111;}}
+.leaflet-popup-content{{margin:10px 14px;min-width:170px;font-family:Georgia,serif;}}
+.leaflet-popup-close-button{{color:#888 !important;}}
+.sns{{color:#cc3333;font-size:12px;}}.stud{{color:#4a90d9;font-size:12px;}}
+</style></head><body>
+<div id="map"></div>
+<div id="cap">
+  <!-- ◀ PRE6b caption: describe what the map shows and add source -->
+  Ten municipalities in Serbia where local elections were held in March 2026. Click markers to see results. Source: [your source here].
+</div>
+<script>
+const LOCS={election_json};
+const map=L.map('map',{{center:[44.2,21.0],zoom:7,zoomControl:true,scrollWheelZoom:false}});
+L.tileLayer('https://{{s}}.basemaps.cartocdn.com/light_all/{{z}}/{{x}}/{{y}}{{r}}.png',{{subdomains:'abcd',maxZoom:14}}).addTo(map);
+LOCS.forEach(l=>{{
+  L.circleMarker([l.la,l.lo],{{radius:14,color:'#cc3333',weight:1.5,fillColor:'#cc3333',fillOpacity:.18}}).addTo(map);
+  L.circleMarker([l.la,l.lo],{{radius:5,color:'#cc3333',weight:0,fillColor:'#cc3333',fillOpacity:1}})
+   .bindPopup(`<b style="font-size:13px;">${{l.n}}</b><br><span class="sns">SNS: ${{l.sns}}</span><br><span class="stud">Student list: ${{l.stud}}</span>`,{{maxWidth:200}})
+   .addTo(map);
+}});
+</script></body></html>
+""", height=320)
+
+    # PRE7, PRE8, PRE9 ── Text blocks
+    sentinel(12)
+    # ◀ PRE7: replace with your paragraph
+    st.markdown("""<p class="body-text">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris.</p>""", unsafe_allow_html=True)
+    # ◀ PRE8: replace with your paragraph
+    st.markdown("""<p class="body-text">Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo.</p>""", unsafe_allow_html=True)
+    # ◀ PRE9: replace with your paragraph
+    st.markdown("""<p class="body-text">At vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis praesentium voluptatum deleniti atque corrupti quos dolores et quas molestias excepturi sint occaecati cupiditate non provident.</p>""", unsafe_allow_html=True)
+
+    # ──────────────────────────────────────────────────────────────────────────
+    # FUTURE
+    # ──────────────────────────────────────────────────────────────────────────
+    sentinel(13)
+    # FUT1 ── Section heading
+    # ◀ FUT1: replace placeholder heading
+    st.markdown('<h2 class="section-title">Serbia\'s future is uncertain.</h2>', unsafe_allow_html=True)
+
+    # FUT2 ── Three voice memos (Luka, Vuk, Ognjen)
+    # Files: LUKA.mp3, VUK.mp3, OGNJEN.mp3 in project root
+    # Auto-plays Luka → Vuk → Ognjen on scroll into view
+    sentinel(14)
+    luka_src   = audio_luka   or ""
+    vuk_src    = audio_vuk    or ""
+    ognjen_src = audio_ognjen or ""
+    components.html(f"""
+<html><head><meta charset="utf-8">
+<style>
+*{{margin:0;padding:0;box-sizing:border-box;}}
+body{{background:#0d0d0d;font-family:Georgia,serif;color:#e8e4de;padding:6px 0 8px;}}
+#cards{{display:flex;gap:12px;}}
+.card{{flex:1;min-width:160px;background:#111;border:1px solid #2a2a2a;border-radius:4px;
+  padding:14px 14px 12px;display:flex;flex-direction:column;align-items:center;gap:8px;transition:border-color .3s;}}
+.card.playing{{border-color:#d97941;}}
+.card-name{{font-size:1rem;font-weight:600;color:#f0ece6;letter-spacing:.02em;text-align:center;}}
+.waveform{{display:flex;align-items:center;gap:3px;height:24px;}}
+.bar{{width:3px;border-radius:2px;background:#3a3835;transition:background .3s;transform-origin:bottom;}}
+.card.playing .bar{{background:#d97941;animation:wave .8s ease-in-out infinite;}}
+.bar:nth-child(1){{animation-delay:0s;height:6px;}}.bar:nth-child(2){{animation-delay:.1s;height:12px;}}
+.bar:nth-child(3){{animation-delay:.2s;height:18px;}}.bar:nth-child(4){{animation-delay:.3s;height:14px;}}
+.bar:nth-child(5){{animation-delay:.4s;height:8px;}}.bar:nth-child(6){{animation-delay:.5s;height:20px;}}
+.bar:nth-child(7){{animation-delay:.15s;height:10px;}}.bar:nth-child(8){{animation-delay:.25s;height:6px;}}
+@keyframes wave{{0%,100%{{transform:scaleY(.4);}}50%{{transform:scaleY(1);}}}}
+.card:not(.playing) .bar{{animation:none !important;height:6px !important;}}
+.play-btn{{width:36px;height:36px;border-radius:50%;background:#1a1a1a;border:1px solid #3a3835;
+  color:#e8e4de;font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;}}
+.card.playing .play-btn{{background:#d97941;border-color:#d97941;color:#fff;}}
+.no-file{{font-size:10px;color:#4a4845;font-style:italic;text-align:center;}}
+audio{{width:0;height:0;opacity:0;position:absolute;}}
+#cap{{font-size:13px;color:#8a8580;margin-top:7px;line-height:1.5;font-style:italic;}}
+</style></head><body>
+<div id="cards">
+  <div class="card" id="c0">
+    <div class="card-name">Luka</div>
+    <div class="waveform"><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div></div>
+    <button class="play-btn" onclick="tog(0)">&#9654;</button>
+    <audio id="a0" {'src="'+luka_src+'"' if luka_src else ''}></audio>
+    {'<div class="no-file">LUKA.mp3 not found</div>' if not luka_src else ''}
+  </div>
+  <div class="card" id="c1">
+    <div class="card-name">Vuk</div>
+    <div class="waveform"><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div></div>
+    <button class="play-btn" onclick="tog(1)">&#9654;</button>
+    <audio id="a1" {'src="'+vuk_src+'"' if vuk_src else ''}></audio>
+    {'<div class="no-file">VUK.mp3 not found</div>' if not vuk_src else ''}
+  </div>
+  <div class="card" id="c2">
+    <div class="card-name">Ognjen</div>
+    <div class="waveform"><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div></div>
+    <button class="play-btn" onclick="tog(2)">&#9654;</button>
+    <audio id="a2" {'src="'+ognjen_src+'"' if ognjen_src else ''}></audio>
+    {'<div class="no-file">OGNJEN.mp3 not found</div>' if not ognjen_src else ''}
+  </div>
+</div>
+<div id="cap">
+  <!-- ◀ FUT2 caption: source note for the voice memos (AI-generated, date, context) -->
+  Voice notes: AI-generated audio. [Add source and context here.]
+</div>
+<script>
+const audios=[0,1,2].map(i=>document.getElementById('a'+i));
+const cards=[0,1,2].map(i=>document.getElementById('c'+i));
+const btns=cards.map(c=>c.querySelector('.play-btn'));
+let cur=-1,started=false;
+function setP(i,p){{cards[i].classList.toggle('playing',p);btns[i].innerHTML=p?'&#9646;&#9646;':'&#9654;';}}
+function stopAll(){{audios.forEach((a,i)=>{{a.pause();a.currentTime=0;setP(i,false);}});cur=-1;}}
+function play(i){{if(!audios[i].src)return;stopAll();cur=i;audios[i].play().catch(()=>{{}});setP(i,true);}}
+function tog(i){{if(cur===i&&!audios[i].paused){{audios[i].pause();setP(i,false);cur=-1;}}else play(i);}}
+audios.forEach((a,i)=>{{a.addEventListener('ended',()=>{{setP(i,false);cur=-1;if(i<2)play(i+1);}});}});
+const obs=new IntersectionObserver(e=>{{if(e[0].isIntersecting&&!started){{started=true;setTimeout(()=>play(0),400);}}}},{{threshold:.5}});
+obs.observe(cards[0]);
+</script></body></html>
+""", height=195)
+
+    # FUT3 ── Final text block  [TIMELINE END at first sentence]
+    sentinel(15)
+    sentinel(16)  # 12:08 fires at start of this paragraph
+    # ◀ FUT3: replace with your last paragraph (more graphics can be added before this)
+    st.markdown("""
+<p class="body-text">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur, excepteur sint occaecat cupidatat non proident qui officia deserunt mollit anim id est laborum et dolore magna aliqua ut enim veniam quis nostrud.</p>
+""", unsafe_allow_html=True)
+
+    # ──────────────────────────────────────────────────────────────────────────
+    # ENDING
+    # ──────────────────────────────────────────────────────────────────────────
+
+    # END1 ── Decorative divider (same style as before authors)
+    st.markdown('<hr class="sec-divider" style="margin-top:1.5rem;">', unsafe_allow_html=True)
+
+    # END2 ── Sources  |  Methodology  (independent expandables, side by side)
+    col_src, col_met = st.columns(2, gap="small")
+    with col_src:
+        with st.expander("Sources"):
+            # ◀ END2 Sources: replace with your actual sources
+            st.markdown("""
+<p class="body-text">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris.</p>
+<p class="body-text">— Armed Conflict Location &amp; Event Data (ACLED). (2026). Serbia dataset, January 2018 – March 2026. <a href="https://acleddata.com">acleddata.com</a><br>— [Add additional sources here]</p>
+""", unsafe_allow_html=True)
+    with col_met:
+        with st.expander("Methodology"):
+            # ◀ END2 Methodology: replace with your methodology description
+            st.markdown("""
+<p class="body-text">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>
+<p class="body-text">Statistical analysis was conducted in R using an Interrupted Time Series (ITS) model with the Novi Sad train station collapse (1 November 2024) as the treatment point. Youth-related protests were identified via keyword matching in ACLED event notes. [Add full methodology here.]</p>
 """, unsafe_allow_html=True)
