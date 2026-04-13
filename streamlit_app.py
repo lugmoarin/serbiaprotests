@@ -142,7 +142,7 @@ html,body,.stApp,[data-testid="stAppViewContainer"],[data-testid="stMain"] {
 /* ─ Expander: all three (Serbia in Context, Sources, Methodology) ─
    Fixes overlapping "arrow_right" text; makes titles bold; rounds corners; darker bg ─ */
 [data-testid="stExpander"] {
-  border:1px solid #2a2a2a !important;
+  border:1.5px solid #d97941 !important;
   border-radius:12px !important;
   background:#111 !important;
   margin-bottom:8px !important;
@@ -297,9 +297,9 @@ with col_tl:
 <html><head><style>
 *{margin:0;padding:0;box-sizing:border-box;}
 html,body{background:#0d0d0d;width:100%;height:100%;}
-#wrap{width:100%;min-height:6000px;position:relative;
+#wrap{width:100%;min-height:5800px;position:relative;
   display:flex;flex-direction:column;align-items:center;padding:16px 0;}
-svg{display:block;width:20px;flex:1;overflow:visible;min-height:5960px;}
+svg{display:block;width:20px;flex:1;overflow:visible;min-height:5200px;}
 .lbl{position:absolute;right:2px;transform:translateY(-50%);
   font-size:10.5px;font-family:Georgia,serif;white-space:nowrap;transition:color .4s;}
 </style></head><body>
@@ -335,7 +335,7 @@ function draw(){
   setActive(0);
 }
 function setActive(idx){
-  if(idx===current&&circles.length)return;current=idx;
+  if(idx===current&&circles.length&&idx!==0)return;current=idx;
   circles.forEach(({el,isE},i)=>{
     if(i===idx){el.setAttribute('fill','#d97941');el.setAttribute('r',isE?5.5:4);}
     else if(i<idx){el.setAttribute('fill','#4a4845');el.setAttribute('r',isE?3.5:2);}
@@ -360,7 +360,7 @@ function pollSentinels(){
 setTimeout(draw,300);setTimeout(draw,900);
 window.addEventListener('resize',draw);setInterval(pollSentinels,120);
 </script></body></html>
-""", height=6100, scrolling=False)
+""", height=5800, scrolling=False)
 
 # ── Content column ────────────────────────────────────────────────────────────
 with col_content:
@@ -371,9 +371,8 @@ with col_content:
 
     # Beg2 ── TEASER (italic, gray, below header map)
     # ◀ Beg2: replace placeholder with your teaser text
-    st.markdown('<p class="teaser">This is a nice teaser that catches the reader and explains the clock thing</p>',
+    st.markdown('<p class="teaser">16 minutes that tell the story of a nationwide protest movement and a generation who refused to stay silent.</p>',
                 unsafe_allow_html=True)
-    st.markdown('<hr class="sec-divider">', unsafe_allow_html=True)
 
     # Beg3 ── AUTHOR LINE
     # ◀ Beg3: replace names if needed
@@ -406,20 +405,23 @@ with col_content:
 </div>
 
 <p class="body-text">In a different part of the city, another young man struggled to do the same. "It was just like a usual day”, Vuk, a 22-year-old social work student, says. "And then all of a sudden these videos started popping up”. He had a friend who commuted through that station. "I was scared to text her at first. What if she wouldn’t respond?" Across Novi Sad, phones buzzed with the same questions that day. "You feel like it is happening far away, but actually it is so close."</p>
-<p class="body-text">That evening, people gathered on the Main Square in Novi Sad. Some lit candles, others cried together. But beneath the grief, something else was taking hold: fury at the corruption that many believed had made the disaster possible. Fury that would soon lead to a nationwide student-led protest movement. One which Luka and Vuk have been part of from the beginning.</p>
 """, unsafe_allow_html=True)
         
     with col_pa2x:
-        # X-Post: https://twitter.com/bianconerobgd/status/1852345088174604535
-        components.html("""
-<html><head><meta charset="utf-8"></head>
-<body style="margin:0;padding:0;background:#0d0d0d;overflow:hidden;">
-<blockquote class="twitter-tweet" data-theme="dark" data-width="320" data-dnt="true">
-  <a href="https://twitter.com/bianconerobgd/status/1852345088174604535"></a>
-</blockquote>
-<script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
-</body></html>
-""", height=680, scrolling=False)
+        img_path = os.path.join(BASE, "collapse_picture.jpg")
+        img_b64 = file_to_b64(img_path, "image/jpeg")
+        if img_b64:
+            st.markdown(f"""
+<div style="margin-top:0.5rem;">
+  <img src="{img_b64}" style="width:75%;border-radius:6px;display:block;">
+  <p class="chart-caption" style="margin-top:0.5rem;">The aftermath of the collapse of a conrete roof at the Novi Sad. Source: Mishyac - Own work, CC0</p>
+</div>
+""", unsafe_allow_html=True)
+
+    # ◀ PA2 new: replace 
+    st.markdown("""
+<p class="body-text">That evening, people gathered on the Main Square in Novi Sad. Some lit candles, others cried together. But beneath the grief, something else was taking hold: fury at the corruption that many believed had made the disaster possible. Fury that would soon lead to a nationwide student-led protest movement. One which Luka and Vuk have been part of from the beginning.</p>
+""", unsafe_allow_html=True)
 
     # PA4 ── Line chart (left, wider)  +  text box (right, narrow)
     sentinel(2)
@@ -585,6 +587,8 @@ body{{background:#0d0d0d;font-family:Georgia,serif;color:#e8e4de;padding-bottom:
 #map{{width:100%;height:420px;border-radius:3px;}}
 #leg{{position:absolute;top:10px;right:10px;z-index:1000;background:rgba(13,13,13,.92);
   border:1px solid #2a2a2a;border-radius:3px;padding:9px 13px;font-size:12px;color:#a09b95;line-height:1.9;pointer-events:none;}}
+#info{{position:absolute;bottom:10px;left:10px;z-index:1000;background:rgba(13,13,13,.92);border:1px solid #2a2a2a;border-radius:3px;padding:9px 13px;font-size:12px;color:#f0ece6;
+  line-height:1.75;pointer-events:none;max-width:240px;font-family:Georgia,serif;font-style:normal;}}
 .li{{display:flex;align-items:center;gap:7px;}}.dot{{width:8px;height:8px;border-radius:50%;flex-shrink:0;}}
 .leg-note{{font-size:12px;color:#8a8580;margin-top:5px;padding-top:5px;border-top:1px solid #1f1f1f;}}
 #ctrl{{display:flex;align-items:center;gap:10px;margin-top:8px;flex-wrap:wrap;}}
@@ -616,6 +620,10 @@ body{{background:#0d0d0d;font-family:Georgia,serif;color:#e8e4de;padding-bottom:
     <div class="li"><div class="dot" style="background:#4a90d9;"></div><span>All other protests</span></div>
     <div class="leg-note">1 dot = 1 protest event · ACLED 2026</div>
   </div>
+  <div id="info">
+  Data analysis shows that the rise of protest did not remain locally to Novi Sad.
+  Use the slider or to move through time. Toggle between "Monthly" and "Cumulative".
+</div>
 </div>
 <div id="ctrl">
   <button id="playbtn" onclick="togglePlay()">&#9654;</button>
