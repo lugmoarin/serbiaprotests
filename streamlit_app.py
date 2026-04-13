@@ -247,7 +247,7 @@ html,body{background:#0d0d0d;width:100%;height:100%;overflow:hidden;}
   <div id="overlay">
     <div id="headline">
       <!-- ◀ Beg1: HEADLINE — replace with actual title -->
-      16 Minutes Silence:<br> Anatomy of Serbia`s Youth Protests???!!!
+      Anatomy of Serbia’s<br>Youth Protests
     </div>
   </div>
 </div>
@@ -388,7 +388,7 @@ with col_content:
     sentinel(0)
     # ◀ PA1: replace with your first full-width paragraph
     st.markdown("""
-<p class="body-text">"Today it’s been 17 months since the tragedy, since the crime", Luka says, his eyes wandering from the desktop screen to the window. "At this moment, people are gathering in front of the railway station to honor the victims by holding 16 minutes of silence." One minute for each life lost on November 1, 2024, when a newly renovated railway station canopy in Novi Sad, Serbia, collapsed, burying those beneath it.</p>
+<p class="body-text">“Today it’s been 17 months since the tragedy“, Luka says, his eyes wandering from the desktop screen to the window. “At this moment, people are gathering in front of the railway station to honor the victims by holding 16 minutes of silence.“ One minute for each life lost on November 1, 2024, when a newly renovated railway station canopy in Novi Sad collapsed, burying those beneath it.</p>
 """, unsafe_allow_html=True)
 
     # PA2 ── Text (~80-90 words) left  +  X-Post right
@@ -398,13 +398,13 @@ with col_content:
         # ◀ PA2: replace with your text (~80-90 words, ends at the same point as the post)
         # PA3 content can be combined here to fill the column beside the post
         st.markdown("""
-<p class="body-text">Thinking back to that day, the 21-year-old communication student from Novi Sad struggles to gather his words. The distinct sound of ambulance sirens is still ingrained in his memory.</p>
+<p class="body-text">Thinking back to that day, the 21-year-old student struggles to gather his words. The distinct sound of ambulance sirens is still ingrained in his memory.</p>
 
 <div style="border-left:3px solid #d97941;padding:0.6rem 0 0.6rem 1.2rem;margin:1rem 0;">
   <p style="font-size:1.9rem;font-weight:600;font-style:italic;color:#f0ece6;line-height:1.4;margin:0;">"I remember everyone calling each other.<br>Asking if they are near the station?<br>If they are alive?"</p>
 </div>
 
-<p class="body-text">In a different part of the city, another young man struggled to do the same. "It was just like a usual day”, Vuk, a 22-year-old social work student, says. "And then all of a sudden these videos started popping up”. He had a friend who commuted through that station. "I was scared to text her at first. What if she wouldn’t respond?" Across Novi Sad, phones buzzed with the same questions that day. "You feel like it is happening far away, but actually it is so close."</p>
+<p class="body-text">In a different part of the city, another young man struggled to do so. Vuk, a 22-year-old social work student, has a friend who commuted through that station. "I was scared to text her at first. What if she wouldn’t respond?" Across Novi Sad, phones buzzed with similar questions that day. "You feel like it is happening far away, but actually it is so close."</p>
 """, unsafe_allow_html=True)
         
     with col_pa2x:
@@ -413,20 +413,20 @@ with col_content:
         if img_b64:
             st.markdown(f"""
 <div style="margin-top:0.5rem;">
-  <img src="{img_b64}" style="width:75%;border-radius:6px;display:block;">
-  <p class="chart-caption" style="margin-top:0.5rem;">The aftermath of the collapse of a conrete roof at the Novi Sad. Source: Mishyac - Own work, CC0</p>
+  <img src="{img_b64}" style="width:55%;border-radius:6px;display:block;">
+  <p class="chart-caption" style="margin-top:0.5rem;">The concrete roof that collapsed.</p>
 </div>
 """, unsafe_allow_html=True)
 
     # ◀ PA2 new: replace 
     st.markdown("""
-<p class="body-text">That evening, people gathered on the Main Square in Novi Sad. Some lit candles, others cried together. But beneath the grief, something else was taking hold: fury at the corruption that many believed had made the disaster possible. Fury that would soon lead to a nationwide student-led protest movement. One which Luka and Vuk have been part of from the beginning.</p>
+<p class="body-text">That evening, people gathered on the Main Square. Some lit candles, others cried together. But beneath the grief, something else was taking hold: fury at the corruption that many believed had made the disaster possible. Fury that would soon lead to a nationwide student-led protest movement. One which Luka and Vuk have been part of from the beginning.</p>
 """, unsafe_allow_html=True)
 
     # PA4 ── Line chart (left, wider)  +  text box (right, narrow)
     sentinel(2)
     # ◀ PA4 chart title: replace placeholder
-    st.markdown('<p class="chart-title">Protest Activity in Serbia Per Week, 2018–2026</p>',
+    st.markdown('<p class="chart-title">Protest Activity in Serbia Per Week, January 2018 until March 2026</p>',
                 unsafe_allow_html=True)
 
     col_pa4c, col_pa4t = st.columns([2.8, 1], gap="small")
@@ -435,7 +435,7 @@ with col_content:
         # ◀ PA4b: replace with your sidebar text (~60-70 words)
         st.markdown("""
 <div class="ctx-box">
-  <p class="ctx-text">In the six years before November 1, 2024, on average roughly nine protest events happened in Serbia every week. Since the Novi Sad canopy collapse until now, statistical analysis of the data shows a significant increase of 42 more protests per week on average. This shift is even more striking among youth-related protests: having remained near zero for years, they are now on average 29 protests more per week.</p>
+  <p class="ctx-text">In the six years before November 1, 2024, on average nine protest events happened in Serbia every week. Since the collapse until now, data analysis shows a significant increase of 42 more protests per week on average. This is even more striking among youth-related protests: having remained near zero for years, now on average 29 more protests happen per week.</p>
 </div>
 """, unsafe_allow_html=True)
 
@@ -467,7 +467,7 @@ canvas{{width:100%!important;height:370px!important;}}
 <div id="wrap"><canvas id="c"></canvas></div>
 <div id="cap">
   <!-- ◀ PA4 caption: replace with your source note -->
-  Weekly protest event count, Serbia, January 2018 – March 2026. Youth-related protests identified via keywords in ACLED event notes. Source: ACLED (Armed Conflict Location & Event Data), accessed 12. April 2026. www.acleddata.com.
+  Weekly protest event count, Serbia, January 2018 – March 2026. Youth-related protests identified via keyword-based search. Source: ACLED (Armed Conflict Location & Event Data), accessed 12. April 2026. www.acleddata.com.
 </div>
 <script>
 const D={weekly_json};
@@ -547,35 +547,35 @@ function toggle(){{
     sentinel(3)
     # ◀ PA5: replace with your paragraph
     st.markdown("""
-<p class="body-text">“Such protests very often attach themselves to tragic events”, says Dr. Tobias Spöri, a political scientist at the University of Vienna. He describes tragedies like this as a “core trigger” for protest movements, rooted in people being dissatisfied with the political situation in a country. “It is very often students who initiate these processes”, he says. This is precisely what happened in Serbia. What began as grief-driven protests, demanding a transparent and thorough investigation into the accident, quickly grew into a broader movement calling for democratic change. Protesters turned their anger towards President Aleksandar Vučić and his ruling Serbian Progressive Party (SNS), blaming large-scale corruption within the party for the catastrophe and accusing the government of restricting democratic freedoms since coming into power in 2017.</p>
+<p class="body-text">“Such protests very often attach themselves to tragic events”, says Dr. Tobias Spöri, a political scientist at the University of Vienna. He describes tragedies like this as a “core trigger” for protest movements, rooted in people being dissatisfied with the political situation. “It is very often students who initiate these processes”, he says. This is what happened in Serbia. What began as grief-driven protests, demanding a thorough investigation into the collapse, quickly grew into a broad movement. Protesters turned their anger towards President Aleksandar Vučić and his ruling Serbian Progressive Party (SNS), blaming large-scale corruption for the catastrophe and accusing the government of restricting democratic freedoms since coming into power in 2017.</p>
 """, unsafe_allow_html=True)
 
     # PA6 ── Expandable "Serbia’s Political System at a Glance"
     # Uses native st.expander → content below shifts dynamically when opened/closed
     sentinel(4)
-    with st.expander("Serbia’s Political System at a Glance"):
+    with st.expander("Serbia at a Glance"):
         # ◀ PA6: replace with your ~70-word context text (shown on light gray background)
         st.markdown("""
-<p class="body-text">Serbia is a country of seven million people in the Western Balkans, formally an EU candidate since 2012. Serbia ranks 116th out of 182 countries on Transparency International's 2024 Corruption Perceptions Index, among the worst in Europe. The V-Dem Institute classifies the country as an electoral autocracy: elections take place, but conditions are neither free nor fair, and democratic backsliding has been ongoing since 2009.</p>
+<p class="body-text">Serbia ranks 116th out of 182 countries on the 2024 Global Corruption Index, among the worst in Europe. The V-Dem Institute classifies the country as an electoral autocracy: elections take place, but conditions are neither free nor fair.</p>
 """, unsafe_allow_html=True)
 
     # PA7 ── Text block
     sentinel(5)
     # ◀ PA7: replace with your paragraph
     st.markdown("""
-<p class="body-text">What fueled the movement further was the government’s response. From the outset, police used tear gas and made arrests. On November 22, 2024, students at the Faculty of Dramatic Arts in Belgrade were attacked during a 16-minute silent vigil for the victims. Later, media reported some of the assailants were connected to the Serbian Progressive Party (SNS). The university requested a comprehensive investigation. When their demands weren’t met, the faculty went into blockade, and others across Serbia followed.</p>
+<p class="body-text">What fueled the movement further was the government’s response. From the outset, police used tear gas and made arrests. On November 22, 2024, students at the Faculty of Dramatic Arts in Belgrade were attacked during a 16-minute silent vigil. Later, media reported some of the assailants were connected to the SNS. The university requested a comprehensive investigation. When their demands weren’t met, faculty blockades spread across the country.</p>
 """, unsafe_allow_html=True)
 
     # PA8 ── Text block
     # ◀ PA8: replace with your paragraph
     st.markdown("""
-<p class="body-text">“These violent crackdowns against the protesters functioned as a catalyst for citizens to show solidarity with the demonstrators and to join the movement”, says Tobias Spöri. One of those who did  was Ognjen, a 25-year-old student in Belgrade. "I started protesting  shortly after some of our colleagues were attacked," he says. Ognjen remembers his first demonstration vividly: bitterly cold, students marching through the city, converging at large highway intersections. "There was a lot of youthful energy in the air. My colleagues were excited. I was excited."This energy soon spread across the country."In early 2025 the protests happened in every city and every small town", Ognjen recalls.</p>
+<p class="body-text">“These violent crackdowns against the protesters functioned as a catalyst for citizens to show solidarity with the demonstrators and to join the movement”, says Tobias Spöri. Ogjen, a 25-year-old student in Belgrade, was one of them. "I started protesting shortly after some of our colleagues were attacked," he says, remembering his first demonstration vividly: "There was a lot of youthful energy in the air.” This energy soon spread across the country. “In early 2025 the protests happened in every city and every small town.”</p>
 """, unsafe_allow_html=True)
 
     # PA9 ── Geographic spread map: Nov 2024 – Mar 2026
     sentinel(6)
     # ◀ PA9 chart title: replace placeholder
-    st.markdown('<p class="chart-title">Spread of Protests, November 2024 - March 2026</p>',
+    st.markdown('<p class="chart-title">Spread of Protests in Serbia, November 2024 until March 2026</p>',
                 unsafe_allow_html=True)
     components.html(f"""
 <html><head><meta charset="utf-8">
@@ -621,8 +621,8 @@ body{{background:#0d0d0d;font-family:Georgia,serif;color:#e8e4de;padding-bottom:
     <div class="leg-note">1 dot = 1 protest event · ACLED 2026</div>
   </div>
   <div id="info">
-  Data analysis shows that the rise of protest did not remain locally to Novi Sad.
-  Use the slider or to move through time. Toggle between "Monthly" and "Cumulative".
+  Data analysis shows that the increase in protests did not remain locally to Novi Sad.
+  Use the slider to move through time. Toggle between "monthly" and "cumulative" view.
 </div>
 </div>
 <div id="ctrl">
@@ -638,7 +638,7 @@ body{{background:#0d0d0d;font-family:Georgia,serif;color:#e8e4de;padding-bottom:
 </div>
 <div id="cap">
   <!-- ◀ PA9 caption: describe what the map shows and add data source -->
-  Use the slider or "play" button to move through time. Toggle between "Monthly" (events that month only) and "Cumulative" (all events up to that month). Source: ACLED (Armed Conflict Location & Event Data), accessed 12. April 2026. www.acleddata.com Youth-related protests identified with keywords.
+  Spread of protest events in Serbia from November 2024 until March 2026. "Monthly" (events that month only) and "cumulative" (all events up to that month) views. Source: ACLED, accessed 12. April 2026. www.acleddata.com Youth-related protests identified with keywords.
 </div>
 <script>
 const M={map_json};const MONTHS={months_json};
@@ -702,14 +702,14 @@ render(0);
     with col_pa10t:
         # ◀ PA10b + PA11: replace with your text (right column, ~22 + additional words)
         st.markdown("""
-<p class="body-text">This broad public support sustained the movement through a winter and spring of massive demonstrations, with several protests spanning widely over 100,000 people. On March 15, 2025, the independent NGO Arhiv javnih skupova estimated over 300,000 people taking the streets of Belgrade, with the government reporting a count of 107,000. That day, the government was accused of deploying a sonic weapon against protesters by rights groups and opposition. They ultimately denied it.</p>
-<p class="body-text">By this point, the movement had already forced some institutional cracks: Prime Minister Miloš Vučević as well as Milan Đurić, Novi Sad’s mayor, had resigned, and the first indictments for criminal liability in connection to the canopy collapsing had been filed. However, for Ognjen, these concessions felt like "cosmetic arrests" and masks.</p>
+<p class="body-text">This broad public support sustained the movement through months of massive demonstrations, with several protests spanning widely over 100,000 people. On March 15, 2025, the independent NGO Arhiv javnih skupova estimated over 300,000 people taking the streets of Belgrade. That day, the government was accused of deploying a sonic weapon against protesters by rights groups and opposition. They denied it.</p>
+<p class="body-text">By this point, the movement had already forced some institutional cracks: Prime Minister Miloš Vučević as well as Milan Đurić, Novi Sad’s mayor, had resigned, and the first indictments for criminal liability in connection to the canopy collapse had been filed. However, for Ognjen, these concessions felt like "cosmetic arrests" and masks.</p>
 
 <div style="border-left:3px solid #d97941;padding:0.6rem 0 0.6rem 1.2rem;margin:1rem 0;">
-  <p style="font-size:1.9rem;font-weight:600;font-style:italic;color:#f0ece6;line-height:1.4;margin:0;">"They don’t have<br>any interest in actually<br>doing their job"</p>
+  <p style="font-size:1.9rem;font-weight:600;font-style:italic;color:#f0ece6;line-height:1.4;margin:0;">"They don’t have<br>any interest in actually<br>doing their job."</p>
 </div>
 
-<p class="body-text">he says. The movement’s four demands — publication of all documentation related to the railway station reconstruction, the identification of those who attacked students, the dismissal of all legal proceedings against protesters and a 20 percent increase in state funding for public universities — remained unmet.</p>
+<p class="body-text">he says. The movement’s demands — publication of all documentation related to the station reconstruction, identification of those who attacked students, dismissal of all legal proceedings against protesters and a 20 percent increase in state funding for public universities — remained unmet.</p>
 """, unsafe_allow_html=True)
 
     # ──────────────────────────────────────────────────────────────────────────
@@ -719,13 +719,13 @@ render(0);
     # PRE1 ── Section heading
     sentinel(9)
     # ◀ PRE1: replace with your section heading
-    st.markdown('<h2 class="section-title">And now?</h2>',
+    st.markdown('<h2 class="section-title">What now?</h2>',
                 unsafe_allow_html=True)
 
     # PRE2 ── Text block
     # ◀ PRE2: replace with your paragraph
     st.markdown("""
-<p class="body-text">In the summer of 2025 the movement entered a new stage, the strategy shifted toward political involvement.  A student list of non-partisan candidates, many drawn from academia, to challenge the regime directly in the electoral arena. Tobias Spöri sees this as a logical evolution for a social movement to maintain its momentum. He notes that while re-democratizing a country like Serbia is a "very large hurdle" and the regimes will react "certainly not only peaceful". The emergence of a new force that distances itself from the "old opposition" brings vital "fresh air" to the system.</p>
+<p class="body-text">In the summer of 2025 the movement entered a new stage, the strategy shifted toward political involvement.  A student list of non-partisan candidates, many drawn from academia, to challenge the regime directly in the electoral arena. Tobias Spöri sees this as a logical evolution for a movement to maintain its momentum. He notes that while re-democratizing a country like Serbia is a "very large hurdle", the emergence of a new force that distances itself from the "old opposition" brings vital "fresh air" to the system.</p>
 """, unsafe_allow_html=True)
 
     # PRE3 ── Pull quote
@@ -733,14 +733,14 @@ render(0);
     # ◀ PRE3: replace quote text (~20 words) and attribution
     st.markdown("""
 <div class="quote-box">
-  <div class="quote-text">"Last year [2025] was a year of protesting, and this year [2026] will be hopefully the year of elections."</div>
+  <div class="quote-text">"Last year was a year of protesting, and this year will be hopefully the year of elections."</div>
   <div class="quote-attr">— Vuk, 22-year old student from Novi Sad</div>
 </div>
 """, unsafe_allow_html=True)
 
     # PRE4 ── Bar chart: youth protests only, Mar 2025 – Mar 2026
     # ◀ PRE4 chart title: replace placeholder
-    st.markdown('<p class="chart-title">Youth-related Protest Activity, March 2025 – March 2026</p>',
+    st.markdown('<p class="chart-title">Development of Youth-related Protest Activity, March 2025 until March 2026</p>',
                 unsafe_allow_html=True)
     components.html(f"""
 <html><head><meta charset="utf-8">
@@ -754,7 +754,7 @@ body{{background:#0d0d0d;font-family:Georgia,serif;color:#e8e4de;padding:4px 0 6
 <div id="wrap"><canvas id="c"></canvas></div>
 <div id="cap">
   <!-- ◀ PRE4 caption: replace with your chart description and source note -->
-  Monthly count of youth-related protest events in Serbia, March 2025 – March 2026. Youth-related protests identified via keywords in ACLED event notes. Source: ACLED (acleddata.com).
+  Monthly count of youth-related protest events in Serbia, March 2025 – March 2026. Youth-related protests identified via keywords in ACLED event notes. Source: ACLED, accessed 12. April 2026. www.acleddata.com.
 </div>
 <script>
 const BD={bar_json};let built=false;
@@ -793,7 +793,7 @@ obs.observe(document.getElementById('wrap'));
     sentinel(11)
     # ◀ PRE5: replace with your paragraph
     st.markdown("""
-<p class="body-text">Today, the three students, Luka, Vuk and Ognjen, are working more focused than ever, though the movement’s presence on the streets has quieted. The focus has shifted to demanding and preparing for early elections. As Vuk puts it: "Last year was a year of protesting, and this year will be hopefully the year of elections." While the data shows fewer youth-related gatherings, Ognjen explains that they are working incredibly hard behind the scenes to field a united, strong opposition in the upcoming parliamentary elections, which Vučić has loosely scheduled for late 2026.</p>
+<p class="body-text">Today, students are working more focused than ever, though the movement’s presence on the streets has quieted. The focus has shifted to preparing for elections. While the data shows fewer youth-related gatherings, Ognjen explains that they are working very hard behind the scenes to field a united opposition in the upcoming national elections, which Vučić has loosely scheduled for late 2026.</p>
 """, unsafe_allow_html=True)
 
     # PRE6 ── Text (~80 words, left)  +  Election map (right)
@@ -801,7 +801,7 @@ obs.observe(document.getElementById('wrap'));
     with col_pre6t:
         # ◀ PRE6a: replace with your text (~80 words)
         st.markdown("""
-<p class="body-text">The impact of this political shift was tested in March 2026 during communal elections in ten municipalities in Serbia, where the student movement was on the ballot. Aleksandar Vučić recalled his victory over all ten of them, but in some only winning with a slight lead in votes. In a political system that has long been marked by easy and predictable wins for the ruling party, these results are particularly striking. "This regime is not unbeatable anymore," says Luka.</p>
+<p class="body-text">The impact of this political shift was tested in March 2026 during local elections in ten towns, where the student list was on the ballot. Vučić recalled his victory over all ten of them, but in some only winning with a slight lead in votes. In a political system that has long been marked by easy and predictable wins for the ruling party, these results are striking. "This regime is not unbeatable anymore," says Luka.</p>
 """, unsafe_allow_html=True)
     with col_pre6m:
         # PRE6b: 10 municipalities — hover/click shows election results
@@ -843,9 +843,9 @@ LOCS.forEach(l=>{{
     # PRE7, PRE8, PRE9 ── Text blocks
     sentinel(12)
     # ◀ PRE7: replace with your paragraph
-    st.markdown("""<p class="body-text">The regime’s reaction to this rising competition has been one of peak repression. Protesters point to a "systemic violence" that has become the rule to intimidate the opponents. „Nearly 1000 people have by now been arrested due to the protests“ says Tobias Spöri. "The regime will do everything possible to prevent being voted out."</p>""", unsafe_allow_html=True)
+    st.markdown("""<p class="body-text">The regime’s reaction to this rising competition has been one of peak repression. Protesters point to a "systemic violence" that has become the rule. Amnesty International reports that “Serbian riot police” has been targeting “peaceful protesters”, with “widespread arrests”. Despite seeing how far the regime is willing to go, the endurance of the students remains. Vuk describes the current atmosphere as the "last part of the marathon".</p>""", unsafe_allow_html=True)
     # ◀ PRE8: replace with your paragraph
-    st.markdown("""<p class="body-text">Despite seeing how far the regime is willing to go, the endurance of the students remains. Vuk describes the current atmosphere as the "last part of the marathon". "We are all just still working hard every single day, every single night", Ognjen insists, emphasizing that much of their most important work is currently "not visible" to the public.</p>""", unsafe_allow_html=True)
+    # st.markdown("""<p class="body-text">Despite seeing how far the regime is willing to go, the endurance of the students remains. Vuk describes the current atmosphere as the "last part of the marathon". "We are all just still working hard every single day, every single night", Ognjen insists, emphasizing that much of their most important work is currently "not visible" to the public.</p>""", unsafe_allow_html=True)
     # ◀ PRE9: replace with your paragraph
     # st.markdown("""<p class="body-text">At vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis praesentium voluptatum deleniti atque corrupti quos dolores et quas molestias excepturi sint occaecati cupiditate non provident.</p>""", unsafe_allow_html=True)
 
@@ -856,7 +856,7 @@ LOCS.forEach(l=>{{
     # FUT1 ── Section heading
     # ◀ FUT1: replace placeholder heading
     st.markdown('<h2 class="section-title">Serbia\'s future is uncertain.</h2>', unsafe_allow_html=True)
-    st.markdown("""<p class="body-text">What are Luka, Ognjen  and Vuk working towards? </p>""", unsafe_allow_html=True)
+    st.markdown("""<p class="body-text">What are Luka, Vuk and Ognjen working towards?</p>""", unsafe_allow_html=True)
     # FUT2 ── Three voice memos (Luka, Vuk, Ognjen)
     # Files: LUKA.mp3, VUK.mp3, OGNJEN.mp3 in project root
     # Auto-plays Luka → Vuk → Ognjen on scroll into view
@@ -915,7 +915,7 @@ audio{{width:0;height:0;opacity:0;position:absolute;}}
 </div>
 <div id="cap">
   <!-- ◀ FUT2 caption: source note for the voice memos (AI-generated, date, context) -->
-  Quotes are original. Voice recordings are AI-generated, created with Eleven Music by elevenlabs.io
+  Quotes original, voice notes AI-generated.
 </div>
 <script>
 const audios=[0,1,2].map(i=>document.getElementById('a'+i));
@@ -937,14 +937,13 @@ obs.observe(cards[0]);
     sentinel(16)  # 12:08 fires at start of this paragraph
     # ◀ FUT3: replace with your last paragraph (more graphics can be added before this)
     st.markdown("""
-<p class="body-text">However, in an electoral autocracy like Serbia, winning an election might not be enough. Spöri points to Poland, where eight years of democratic backsliding left institutions so entrenched that re-democratisation has proven difficult even after the government changed. In Serbia, that entrenchment runs deeper still: the presidency has steadily absorbed competencies from other institutions, and Vučić, Spöri notes, who would "very probably face legal proceedings due to corruption" if voted out, has every reason to fight.</p>
+<p class="body-text">However, winning an election might not be enough. Political scientist Tobias Spöri points to Poland, where eight years of democratic backsliding left institutions so entrenched that re-democratisation has proven difficult even after the government changed. In Serbia, that entrenchment runs deeper: the presidency has steadily absorbed competencies from other institutions, and Vučić, Spöri notes, who would "very probably face legal proceedings due to corruption" if voted out, has every reason to fight.</p>
 """, unsafe_allow_html=True)
     st.markdown("""
-<p class="body-text">Additionally, the country's development extends far beyond its borders. The EU, long a potential counterweight, has been an ambiguous actor. Spöri notes that Brussels for years prioritised Serbian stability over democratic progress, finding Vučić's balancing act between Russia, China and the West convenient enough. "The EU for a long time had no interest in further countries joining," he says, pointing to a pattern in which regime stability was preferred over democratic progress. 
-Meanwhile, thousands continue to leave Serbia. Spöri cautions that many are "voting with their feet rather than going to the polls." Every person who leaves is one fewer voice at the ballot box and one more reminder of what the movement is ultimately fighting against. For those who stay, the stakes feel existential and the generation that learned politics in a blockaded faculty building will not quietly return to passive citizenship. “It’s fight or leave, literally, for my generation”, says Luka.</p>
+<p class="body-text">The EU has been an ambiguous actor. Spöri notes that Brussels for years prioritised Serbian stability over democratic progress, finding Vučić's balancing act between Russia, China and the West convenient enough. Meanwhile, thousands continue to leave Serbia. Spöri cautions that many are "voting with their feet rather than going to the polls." Every person who leaves is one fewer voice at the ballot box.. For those who stay, the stakes feel existential and the generation that learned politics in a blockaded faculty will not quietly return to passive citizenship. “It’s fight or leave, literally, for my generation”, says Luka.</p>
 """, unsafe_allow_html=True)
     st.markdown("""
-<p class="body-text">Every first of the month at 12:08 p.m., people leave Novi Sad’s railway station after having spent 16 minutes standing in silence. They move on with their lives without forgetting those who aren’t there anymore. Luka still walks past the station building on his way home. "That building was shining every day," he says. "You could see it from the other half of the city. And nowadays it's not shining anymore. It's dark." He pauses. "So basically, we need to change."</p>
+<p class="body-text">Every first of the month at 12:08 p.m., people leave Novi Sad’s railway station after standing for 16 minutes in silence. They move on with their lives without forgetting those who aren’t there anymore. Luka often walks past the station. "That building was shining every day," he says. "You could see it from the other half of the city. And nowadays it's not shining anymore. It's dark." He pauses. "So basically, we need to change."</p>
 """, unsafe_allow_html=True)
     # ──────────────────────────────────────────────────────────────────────────
     # ENDING
@@ -982,11 +981,22 @@ Stojanović, M. (2025, January 28). Serbia's prime minister resigns as mass prot
 Transparency International. (2025). Corruption Perceptions Index 2025. https://www.transparency.org/en/cpi/2025<br> 
 Vreme. (2025, January 28). Gradonačelnik Novog Sada Milan Đurić podneo ostavku [Mayor of Novi Sad Milan Đurić resigns]. Vreme. https://vreme.com/en/vesti/gradonacelnik-novog-sada-milan-djuric-podnosi-ostavku/
 </p>
+<p class="body-text">Visual sources:<br>
+Mishyac. (2024, November 1). Novi Sad railway station canopy collapse [Photograph]. Wikimedia Commons. https://commons.wikimedia.org/wiki/File:Novi_Sad_railway_station_canopy_collapse.jpg<br>
+Visegrád 24. (2025, March 18). Picture showing the scale of Saturday's student protest in Belgrade which gathered more than half a million people demanding the… [Post]. X. https://x.com/visegrad24/status/1902376760555065655
+</p>
+<p class="body-text">Audio sources:<br>
+ElevenLabs. (2026). ElevenLabs voice AI [Software]. https://elevenlabs.io: The three voice notes on the website are AI-generated reproductions created using ElevenLabs based on real interviews; in order to protect our sources, we didn’t include their original voices.
+</p>
 """, unsafe_allow_html=True)
     with col_met:
         with st.expander("Methodology"):
             # ◀ END2 Methodology: replace with your methodology description
             st.markdown("""
-<p class="body-text">XXX gotta add full methods here still</p>
-<p class="body-text">Statistical analysis was conducted in R using an Interrupted Time Series (ITS) model with the Novi Sad train station collapse (1 November 2024) as the treatment point. Youth-related protests were identified via keyword matching in ACLED event notes......</p>
+<p class="body-text">Data Processing:<br>
+We scaled the ACLED dataset (see in “Sources”) down to protest events in Serbia from January 2018 to March 2026. Further, we identified youth-related protest events in the dataset with keyword-based search. ACLED advises this data processing approach when aiming for additional details of events that are not captured in other variables. This was the case, as ACLED does not consistently cover demographics of actors. However, the dataset provides these details in the event notes. The applied keywords for including data points as youth-related are “student|students|student-led|university|fakultet|faculty|youth|young|young people”, the key-phrase "oppose student-led protests" was added to exclude unwanted data points.
+</p>
+<p class="body-text">Applied Statistical Analysis:<br>
+We employed a simple Interrupted Time Series design to analyse the protests statistically. This method allows us to compare average level changes before/after an event of a measure collected repeatedly over time. Our dependent variable is weekly protest count (total/youth-related) from January 2018 until March 2026. Our independent (treatment) variable is a binary indicator for the before/after weeks after 1 November 2024. We added weekly protest counts in Novi Sad as a control variable. This helped isolate whether the increase in protests extends beyond Novi Sad.
+</p>
 """, unsafe_allow_html=True)
