@@ -11,7 +11,7 @@ def dp(f): return os.path.join(BASE, "data", f)
 st.set_page_config(layout="wide", page_title="Serbia Protests", page_icon="🇷🇸")
 
 # ── Keywords (from assign4_journo.R) ─────────────────────────────────────────
-KW = "student|students|university|fakultet|faculty|youth|young people"
+KW = "student|students|student-led|university|fakultet|faculty|youth|young|young people"
 
 # ── Data loading ──────────────────────────────────────────────────────────────
 @st.cache_data
@@ -433,7 +433,7 @@ with col_content:
         # ◀ PA4b: replace with your sidebar text (~60-70 words)
         st.markdown("""
 <div class="ctx-box">
-  <p class="ctx-text">In the six years before November 1, 2024, on average roughly nine protest events happened in Serbia every week. Since the Novi Sad canopy collapse until now, statistical analysis of the data shows a significant increase of 44 more protests per week on average. This shift is even more striking among youth-related protests: having remained near zero for years, they are now at an average of 39 protests per week.</p>
+  <p class="ctx-text">In the six years before November 1, 2024, on average roughly nine protest events happened in Serbia every week. Since the Novi Sad canopy collapse until now, statistical analysis of the data shows a significant increase of 42 more protests per week on average. This shift is even more striking among youth-related protests: having remained near zero for years, they are now on average 29 protests more per week.</p>
 </div>
 """, unsafe_allow_html=True)
 
