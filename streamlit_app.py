@@ -11,14 +11,17 @@ def dp(f): return os.path.join(BASE, "data", f)
 st.set_page_config(layout="wide", page_title="Serbia Protests", page_icon="🇷🇸")
 
 # ── Keywords (from assign4_journo.R) ─────────────────────────────────────────
-KW = "student|university|fakultet|faculty|youth|young people|occupying|occupied"
+KW = "student|students|university|fakultet|faculty|youth|young people"
 
 # ── Data loading ──────────────────────────────────────────────────────────────
 @st.cache_data
 def load_protests():
     df = pd.read_csv(dp("protests_serbia.csv"))
     df["event_date"] = pd.to_datetime(df["event_date"])
-    df["is_student"] = df["notes"].str.contains(KW, case=False, na=False)
+    df["is_student"] = (
+    df["notes"].str.contains(KW, case=False, na=False) &
+    ~df["notes"].str.contains("oppose student-led protests", case=False, na=False)
+)
     df["month"] = df["event_date"].dt.to_period("M").astype(str)
     return df
 
