@@ -126,8 +126,8 @@ html,body,.stApp,[data-testid="stAppViewContainer"],[data-testid="stMain"] {
 
 /* ─ Typography ─ */
 .body-text    { font-size:1rem; line-height:1.9; color:#e8e4de; margin-bottom:.9rem; text-align:justify; hyphens:auto; }
-.teaser       { font-size:1.15rem !important; line-height:1.8; color:#9a9490; font-style:italic; font-weight:300; margin-bottom:.4rem; }
-.author-line  { font-size:.72rem; color:#6a6560; margin:0; line-height:1.4; }
+.teaser       { font-size:1.4rem !important; line-height:1.8; color:#9a9490; font-style:italic; font-weight:300; margin-bottom:.4rem; }
+.author-line  { font-size:.76rem !important; color:#6a6560; margin:0; line-height:1.4; font-style:italic; }
 .sec-divider  { border:none; border-top:1px solid #7a7570; margin:.4rem 0 .6rem; }
 .section-title{ font-size:1.2rem; font-weight:600; color:#f0ece6; margin:.8rem 0 .5rem; line-height:1.3; }
 .chart-title  { font-size:1.5rem !important; font-weight:600; color:#f0ece6; margin-bottom:.3rem; }
@@ -231,7 +231,7 @@ html,body{background:#0d0d0d;width:100%;height:100%;overflow:hidden;}
 }
 #headline{
   font-family:Georgia,serif;
-  font-size:clamp(1.6rem,3.2vw,3rem);
+  font-size:clamp(2rem,4vw,3.8rem);
   font-weight:600;color:#f0ece6;line-height:1.2;max-width:50%;
   text-shadow:0 2px 16px rgba(0,0,0,0.95),0 0 60px rgba(0,0,0,0.85);
 }
@@ -289,7 +289,7 @@ def sentinel(i):
 # Right column (0.91): all article content
 # Padding added via extra thin outer columns
 # ═══════════════════════════════════════════════════════════════════════════════
-_, col_tl, col_content, _ = st.columns([0.02, 0.08, 0.84, 0.06], gap="small")
+_, col_tl, col_content, _ = st.columns([0.02, 0.08, 0.80, 0.10], gap="small")
 
 # ── OV1: Timeline column ──────────────────────────────────────────────────────
 with col_tl:
@@ -297,11 +297,11 @@ with col_tl:
 <html><head><style>
 *{margin:0;padding:0;box-sizing:border-box;}
 html,body{background:#0d0d0d;width:100%;height:100%;}
-#wrap{width:100%;min-height:5800px;position:relative;
+#wrap{width:100%;min-height:4920px;position:relative;
   display:flex;flex-direction:column;align-items:center;padding:16px 0;}
-svg{display:block;width:20px;flex:1;overflow:visible;min-height:5200px;}
+svg{display:block;width:20px;flex:1;overflow:visible;min-height:5120px;}
 .lbl{position:absolute;right:2px;transform:translateY(-50%);
-  font-size:10.5px;font-family:Georgia,serif;white-space:nowrap;transition:color .4s;}
+  font-size:11.1px;font-family:Georgia,serif;white-space:nowrap;transition:color .4s;}
 </style></head><body>
 <div id="wrap"><svg id="svg" preserveAspectRatio="none"></svg></div>
 <script>
@@ -360,7 +360,7 @@ function pollSentinels(){
 setTimeout(draw,300);setTimeout(draw,900);
 window.addEventListener('resize',draw);setInterval(pollSentinels,120);
 </script></body></html>
-""", height=5800, scrolling=False)
+""", height=5300, scrolling=False)
 
 # ── Content column ────────────────────────────────────────────────────────────
 with col_content:
@@ -376,7 +376,7 @@ with col_content:
 
     # Beg3 ── AUTHOR LINE
     # ◀ Beg3: replace names if needed
-    st.markdown('<p class="author-line">Sophie Eder · Laura Lugmair · Sara Comendador</p>',
+    st.markdown('<p class="author-line">Story by Sophie Eder · Laura Lugmair · Sara Comendador</p>',
                 unsafe_allow_html=True)
     st.markdown('<div style="margin-bottom:1.2rem;"></div>', unsafe_allow_html=True)
 
@@ -393,7 +393,7 @@ with col_content:
 
     # PA2 ── Text (~80-90 words) left  +  X-Post right
     sentinel(1)
-    col_pa2t, col_pa2x = st.columns([1.2, 1.0], gap="large")
+    col_pa2t, col_pa2x = st.columns([1.5, 0.9], gap="large")
     with col_pa2t:
         # ◀ PA2: replace with your text (~80-90 words, ends at the same point as the post)
         # PA3 content can be combined here to fill the column beside the post
@@ -413,7 +413,7 @@ with col_content:
         if img_b64:
             st.markdown(f"""
 <div style="margin-top:0.5rem;">
-  <img src="{img_b64}" style="width:55%;border-radius:6px;display:block;">
+  <img src="{img_b64}" style="width:62%;border-radius:6px;display:block;">
   <p class="chart-caption" style="margin-top:0.5rem;">The concrete roof that collapsed.</p>
 </div>
 """, unsafe_allow_html=True)
@@ -556,7 +556,7 @@ function toggle(){{
     with st.expander("Serbia at a Glance"):
         # ◀ PA6: replace with your ~70-word context text (shown on light gray background)
         st.markdown("""
-<p class="body-text">Serbia ranks 116th out of 182 countries on the 2024 Global Corruption Index, among the worst in Europe. The V-Dem Institute classifies the country as an electoral autocracy: elections take place, but conditions are neither free nor fair.</p>
+<p class="body-text">Serbia ranks 116th out of 182 countries on the 2024 Global Corruption Index, among the worst in Europe.<br>The V-Dem Institute classifies the country as an electoral autocracy: elections take place, but conditions are neither free nor fair.</p>
 """, unsafe_allow_html=True)
 
     # PA7 ── Text block
@@ -569,7 +569,7 @@ function toggle(){{
     # PA8 ── Text block
     # ◀ PA8: replace with your paragraph
     st.markdown("""
-<p class="body-text">“These violent crackdowns against the protesters functioned as a catalyst for citizens to show solidarity with the demonstrators and to join the movement”, says Tobias Spöri. Ogjen, a 25-year-old student in Belgrade, was one of them. "I started protesting shortly after some of our colleagues were attacked," he says, remembering his first demonstration vividly: "There was a lot of youthful energy in the air.” This energy soon spread across the country. “In early 2025 the protests happened in every city and every small town.”</p>
+<p class="body-text">“These violent crackdowns against the protesters functioned as a catalyst for citizens to show solidarity with the demonstrators and to join the movement”, says Tobias Spöri. Ogjen, a 25-year-old student in Belgrade, was one of them. "I started protesting shortly after some of our colleagues were attacked," he says, remembering his first demonstration vividly: "There was a lot of youthful energy in the air.” This energy soon spread across the country. “In early 2025 the protests happened in many cities and small towns.”</p>
 """, unsafe_allow_html=True)
 
     # PA9 ── Geographic spread map: Nov 2024 – Mar 2026
@@ -621,8 +621,8 @@ body{{background:#0d0d0d;font-family:Georgia,serif;color:#e8e4de;padding-bottom:
     <div class="leg-note">1 dot = 1 protest event · ACLED 2026</div>
   </div>
   <div id="info">
-  Data analysis shows that the increase in protests did not remain locally to Novi Sad.
-  Use the slider to move through time. Toggle between "monthly" and "cumulative" view.
+  Ogjen's statement is backed by data:<br>The increase in protests did not remain local to Novi Sad only, statistical analysis finds.
+  <br><br>Use the slider to move through time. Toggle to change between "monthly" and "cumulative" view.
 </div>
 </div>
 <div id="ctrl">
@@ -693,12 +693,12 @@ render(0);
         components.html("""
 <html><head><meta charset="utf-8"></head>
 <body style="margin:0;padding:0;background:#0d0d0d;overflow:hidden;">
-<blockquote class="twitter-tweet" data-theme="dark" data-width="320" data-dnt="true">
+<blockquote class="twitter-tweet" data-theme="dark" data-width="280" data-dnt="true">
   <a href="https://twitter.com/visegrad24/status/1902376760555065655"></a>
 </blockquote>
 <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
 </body></html>
-""", height=680, scrolling=False)
+""", height=600, scrolling=False)
     with col_pa10t:
         # ◀ PA10b + PA11: replace with your text (right column, ~22 + additional words)
         st.markdown("""
@@ -706,7 +706,7 @@ render(0);
 <p class="body-text">By this point, the movement had already forced some institutional cracks: Prime Minister Miloš Vučević as well as Milan Đurić, Novi Sad’s mayor, had resigned, and the first indictments for criminal liability in connection to the canopy collapse had been filed. However, for Ognjen, these concessions felt like "cosmetic arrests" and masks.</p>
 
 <div style="border-left:3px solid #d97941;padding:0.6rem 0 0.6rem 1.2rem;margin:1rem 0;">
-  <p style="font-size:1.9rem;font-weight:600;font-style:italic;color:#f0ece6;line-height:1.4;margin:0;">"They don’t have<br>any interest in actually<br>doing their job."</p>
+  <p style="font-size:1.9rem;font-weight:600;font-style:italic;color:#f0ece6;line-height:1.4;margin:0;">"They don’t have<br>any interest in actually<br>doing their job"</p>
 </div>
 
 <p class="body-text">he says. The movement’s demands — publication of all documentation related to the station reconstruction, identification of those who attacked students, dismissal of all legal proceedings against protesters and a 20 percent increase in state funding for public universities — remained unmet.</p>
@@ -797,7 +797,7 @@ obs.observe(document.getElementById('wrap'));
 """, unsafe_allow_html=True)
 
     # PRE6 ── Text (~80 words, left)  +  Election map (right)
-    col_pre6t, col_pre6m = st.columns([1.1, 1], gap="large")
+    col_pre6t, col_pre6m = st.columns([0.6, 1.4], gap="large")
     with col_pre6t:
         # ◀ PRE6a: replace with your text (~80 words)
         st.markdown("""
@@ -868,7 +868,7 @@ LOCS.forEach(l=>{{
 <html><head><meta charset="utf-8">
 <style>
 *{{margin:0;padding:0;box-sizing:border-box;}}
-body{{background:#0d0d0d;font-family:Georgia,serif;color:#e8e4de;padding:2px 0 2px;}}
+body{{background:#0d0d0d;font-family:Georgia,serif;color:#e8e4de;padding:0;}}
 #cards{{display:flex;gap:12px;}}
 .card{{flex:1;min-width:160px;background:#111;border:1px solid #2a2a2a;border-radius:4px;
   padding:14px 14px 12px;display:flex;flex-direction:column;align-items:center;gap:8px;transition:border-color .3s;}}
@@ -930,17 +930,17 @@ audios.forEach((a,i)=>{{a.addEventListener('ended',()=>{{setP(i,false);cur=-1;if
 const obs=new IntersectionObserver(e=>{{if(e[0].isIntersecting&&!started){{started=true;setTimeout(()=>play(0),400);}}}},{{threshold:.5}});
 obs.observe(cards[0]);
 </script></body></html>
-""", height=195)
+""", height=147)
 
     # FUT3 ── Final text block  [TIMELINE END at first sentence]
     sentinel(15)
     sentinel(16)  # 12:08 fires at start of this paragraph
     # ◀ FUT3: replace with your last paragraph (more graphics can be added before this)
     st.markdown("""
-<p class="body-text">However, winning an election might not be enough. Political scientist Tobias Spöri points to Poland, where eight years of democratic backsliding left institutions so entrenched that re-democratisation has proven difficult even after the government changed. In Serbia, that entrenchment runs deeper: the presidency has steadily absorbed competencies from other institutions, and Vučić, Spöri notes, who would "very probably face legal proceedings due to corruption" if voted out, has every reason to fight.</p>
+<p class="body-text">Winning elections might not be enough though. Political scientist Tobias Spöri points to Poland, where eight years of democratic backsliding left institutions so entrenched that re-democratisation has proven difficult even after the government changed. In Serbia, that entrenchment runs deeper: the presidency has steadily absorbed competencies from other institutions, and Vučić, Spöri notes, who would "very probably face legal proceedings due to corruption" if voted out, has every reason to fight.</p>
 """, unsafe_allow_html=True)
     st.markdown("""
-<p class="body-text">The EU has been an ambiguous actor. Spöri notes that Brussels for years prioritised Serbian stability over democratic progress, finding Vučić's balancing act between Russia, China and the West convenient enough. Meanwhile, thousands continue to leave Serbia. Spöri cautions that many are "voting with their feet rather than going to the polls." Every person who leaves is one fewer voice at the ballot box.. For those who stay, the stakes feel existential and the generation that learned politics in a blockaded faculty will not quietly return to passive citizenship. “It’s fight or leave, literally, for my generation”, says Luka.</p>
+<p class="body-text">The EU has been an ambiguous actor. Spöri notes that Brussels for years prioritised Serbian stability over democratic progress, finding Vučić's balancing act between Russia, China and the West convenient enough. Meanwhile, thousands continue to leave Serbia. Spöri cautions that many are "voting with their feet rather than going to the polls." Every person who leaves is one fewer voice at the ballot box. For those who stay, the stakes feel existential and the generation that learned politics in a blockaded faculty will not quietly return to passive citizenship. “It’s fight or leave, literally, for my generation”, says Luka.</p>
 """, unsafe_allow_html=True)
     st.markdown("""
 <p class="body-text">Every first of the month at 12:08 p.m., people leave Novi Sad’s railway station after standing for 16 minutes in silence. They move on with their lives without forgetting those who aren’t there anymore. Luka often walks past the station. "That building was shining every day," he says. "You could see it from the other half of the city. And nowadays it's not shining anymore. It's dark." He pauses. "So basically, we need to change."</p>
@@ -962,14 +962,22 @@ obs.observe(cards[0]);
 ACLED (Armed Conflict Location & Event Data), accessed 12. April 2026. www.acleddata.com
 </p>
 <p class="body-text">Dialogue sources:<br> 
-Luka (2026, April). Personal interview conducted by Sophie Eder. [conducted via video call].<br>
-Ognjen (2026, April). Personal interview conducted by Sophie Eder. [conducted via video call].<br>
-Vuk (2026, April). Personal interview conducted by Sophie Eder. [conducted via video call].<br>
-Dr. Tobias Spöri (2025, April). Personal interview conducted by Sophie Eder and Laura Lugmair. University of Vienna [conducted via video call].
+Luka (2026, April). Personal interview conducted by Sophie Eder.<br>
+Ognjen (2026, April). Personal interview conducted by Sophie Eder.<br>
+Vuk (2026, April). Personal interview conducted by Sophie Eder.<br>
+Dr. Tobias Spöri (2025, April). Personal interview conducted by Sophie Eder and Laura Lugmair.
+</p>
+<p class="body-text">Visual sources:<br>
+Mishyac. (2024, November 1). Novi Sad railway station canopy collapse [Photograph]. Wikimedia Commons. https://commons.wikimedia.org/wiki/File:Novi_Sad_railway_station_canopy_collapse.jpg<br>
+Visegrád 24. (2025, March 18). Picture showing the scale of Saturday's student protest in Belgrade which gathered more than half a million people demanding the… [Post]. X. https://x.com/visegrad24/status/1902376760555065655
+</p>
+<p class="body-text">Audio sources:<br>
+ElevenLabs. (2026). ElevenLabs voice AI [Software]. https://elevenlabs.io: The three voice notes on the website are AI-generated reproductions created using ElevenLabs based on real interviews; in order to protect our sources, we didn’t include their original voices.
 </p>
 <p class="body-text">Non-dialogue sources:<br>
 Al Jazeera. (2024, November 6). Police fire tear gas at Serbians protesting deadly station roof collapse. Al Jazeera. https://www.aljazeera.com/news/2024/11/6/police-fire-tear-gas-at-serbians-protesting-deadly-station-roof-collapse<br>
 BBC News. (2025, March 15). Serbia's largest-ever rally sees 325,000 protest against government. BBC News. https://www.bbc.com/news/articles/cx2g8v32q30o<br>
+Amnesty International. (2025, July 4). Serbia: Authorities must end unlawful use of force against protesters and investigate reports of police violence. https://www.amnesty.org/en/latest/news/2025/07/serbia-authorities-must-end-unlawful-use-of-force-against-protesters-and-investigate-reports-of-police-violence/<br>
 Danas. (2024, December 11). Funkcioner SNS-a i "slučajni prolaznik": Ko je Milija Koldžić, član opštinskog veća koji "ništa nije kriv"? [SNS official and "accidental bystander": Who is Milija Koldžić, the municipal council member who "did nothing wrong"?]. Danas. https://www.danas.rs/vesti/politika/milija-koldzic-biografija/<br>
 Deutsche Welle. (2025, March 15). Serbia: Protesters flood Belgrade with Vucic under pressure. DW. https://www.dw.com/en/serbia-protesters-flood-belgrade-with-vucic-under-pressure/a-71933147<br>
 European Western Balkans. (2025, September 5). Vučić's distortion of facts to help save a tarnished international reputation. European Western Balkans. https://europeanwesternbalkans.com/2025/09/05/vucics-distortion-of-facts-to-help-save-a-tarnished-international-reputation/<br>
@@ -981,22 +989,16 @@ Stojanović, M. (2025, January 28). Serbia's prime minister resigns as mass prot
 Transparency International. (2025). Corruption Perceptions Index 2025. https://www.transparency.org/en/cpi/2025<br> 
 Vreme. (2025, January 28). Gradonačelnik Novog Sada Milan Đurić podneo ostavku [Mayor of Novi Sad Milan Đurić resigns]. Vreme. https://vreme.com/en/vesti/gradonacelnik-novog-sada-milan-djuric-podnosi-ostavku/
 </p>
-<p class="body-text">Visual sources:<br>
-Mishyac. (2024, November 1). Novi Sad railway station canopy collapse [Photograph]. Wikimedia Commons. https://commons.wikimedia.org/wiki/File:Novi_Sad_railway_station_canopy_collapse.jpg<br>
-Visegrád 24. (2025, March 18). Picture showing the scale of Saturday's student protest in Belgrade which gathered more than half a million people demanding the… [Post]. X. https://x.com/visegrad24/status/1902376760555065655
-</p>
-<p class="body-text">Audio sources:<br>
-ElevenLabs. (2026). ElevenLabs voice AI [Software]. https://elevenlabs.io: The three voice notes on the website are AI-generated reproductions created using ElevenLabs based on real interviews; in order to protect our sources, we didn’t include their original voices.
-</p>
 """, unsafe_allow_html=True)
     with col_met:
         with st.expander("Methodology"):
             # ◀ END2 Methodology: replace with your methodology description
             st.markdown("""
 <p class="body-text">Data Processing:<br>
-We scaled the ACLED dataset (see in “Sources”) down to protest events in Serbia from January 2018 to March 2026. Further, we identified youth-related protest events in the dataset with keyword-based search. ACLED advises this data processing approach when aiming for additional details of events that are not captured in other variables. This was the case, as ACLED does not consistently cover demographics of actors. However, the dataset provides these details in the event notes. The applied keywords for including data points as youth-related are “student|students|student-led|university|fakultet|faculty|youth|young|young people”, the key-phrase "oppose student-led protests" was added to exclude unwanted data points.
+We scaled the ACLED dataset (see in “Sources”) down to protest events in Serbia from January 2018 to March 2026. Further, we identified youth-related protest events in the dataset with keyword-based search. ACLED advises this data processing approach when aiming for additional details of events that are not captured in other variables. This was the case, as ACLED does not consistently cover demographics of actors. However, the dataset provides these details in the event notes. The applied keywords for including data points as youth-related are “student, students, student-led, university, fakultet, faculty, youth, young, young people”, the key-phrase "oppose student-led protests" was added to exclude unwanted data points.
 </p>
 <p class="body-text">Applied Statistical Analysis:<br>
 We employed a simple Interrupted Time Series design to analyse the protests statistically. This method allows us to compare average level changes before/after an event of a measure collected repeatedly over time. Our dependent variable is weekly protest count (total/youth-related) from January 2018 until March 2026. Our independent (treatment) variable is a binary indicator for the before/after weeks after 1 November 2024. We added weekly protest counts in Novi Sad as a control variable. This helped isolate whether the increase in protests extends beyond Novi Sad.
 </p>
 """, unsafe_allow_html=True)
+    st.markdown('<hr class="sec-divider" style="margin-top:1.5rem;">', unsafe_allow_html=True)
