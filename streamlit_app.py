@@ -435,7 +435,7 @@ with col_content:
         # ◀ PA4b: replace with your sidebar text (~60-70 words)
         st.markdown("""
 <div class="ctx-box">
-  <p class="ctx-text">In the six years before November 1, 2024, on average nine protest events happened in Serbia every week. Since the collapse until now, data analysis shows a significant increase of 42 more protests per week on average. This is even more striking among youth-related protests: having remained near zero for years, now on average 29 more protests happen per week.</p>
+  <p class="ctx-text">In the six years before November 1, 2024, on average nine protest events happened in Serbia every week. Since the collapse until now, data analysis shows a significant increase of 42 more protests per week on average. Identifying only youth-related protests provides insight into the movement: having remained near zero for years, now on average 29 more such protests happen per week.</p>
 </div>
 """, unsafe_allow_html=True)
 
