@@ -569,7 +569,7 @@ function toggle(){{
     # PA8 ── Text block
     # ◀ PA8: replace with your paragraph
     st.markdown("""
-<p class="body-text">“These violent crackdowns against the protesters functioned as a catalyst for citizens to show solidarity with the demonstrators and to join the movement”, says Tobias Spöri. Ogjnen, a 25-year-old student in Belgrade, was one of them. "I started protesting shortly after some of our colleagues were attacked," he says, remembering his first demonstration vividly: "There was a lot of youthful energy in the air.” This energy soon spread across the country. “In early 2025 the protests happened in many cities and small towns.”</p>
+<p class="body-text">“These violent crackdowns against the protesters functioned as a catalyst for citizens to show solidarity with the demonstrators and to join the movement”, says Tobias Spöri. Ognjen, a 25-year-old student in Belgrade, was one of them. "I started protesting shortly after some of our colleagues were attacked," he says, remembering his first demonstration vividly: "There was a lot of youthful energy in the air.” This energy soon spread across the country. “In early 2025 the protests happened in many cities and small towns.”</p>
 """, unsafe_allow_html=True)
 
     # PA9 ── Geographic spread map: Nov 2024 – Mar 2026
