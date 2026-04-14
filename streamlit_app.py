@@ -467,7 +467,7 @@ canvas{{width:100%!important;height:370px!important;}}
 <div id="wrap"><canvas id="c"></canvas></div>
 <div id="cap">
   <!-- ◀ PA4 caption: replace with your source note -->
-  Weekly protest event count, Serbia, January 2018 – March 2026. Youth-related protests identified via keyword-based search. Source: ACLED (Armed Conflict Location & Event Data), accessed 12. April 2026. www.acleddata.com.
+  Weekly protest event count, Serbia, January 2018 – March 2026. Youth-related protests identified via keyword-based search (see further information in Methodology). Source: ACLED (Armed Conflict Location & Event Data), accessed 12. April 2026. www.acleddata.com.
 </div>
 <script>
 const D={weekly_json};
