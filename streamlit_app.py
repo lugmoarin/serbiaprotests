@@ -435,7 +435,7 @@ with col_content:
         # ◀ PA4b: replace with your sidebar text (~60-70 words)
         st.markdown("""
 <div class="ctx-box">
-  <p class="ctx-text">In the six years before November 1, 2024, on average nine protest events happened in Serbia every week. Since the collapse until now, data analysis shows a significant increase of 42 more protests per week on average. Identifying only youth-related protests provides insight into the movement: having remained near zero for years, now on average 29 more such protests happen per week.</p>
+  <p class="ctx-text">In the six years before November 1, 2024, on average nine protest events happened in Serbia every week. Since the collapse until now, data analysis shows a significant increase of 42 more protests per week on average. Identifying only youth-related protests provides insight into the movement: having remained near zero for years, after the tragedy on average 29 more such protests happen per week.</p>
 </div>
 """, unsafe_allow_html=True)
 
@@ -547,7 +547,7 @@ function toggle(){{
     sentinel(3)
     # ◀ PA5: replace with your paragraph
     st.markdown("""
-<p class="body-text">“Such protests very often attach themselves to tragic events”, says Dr. Tobias Spöri, a political scientist at the University of Vienna. He describes tragedies like this as a “core trigger” for protest movements, rooted in people being dissatisfied with the political situation. “It is very often students who initiate these processes”, he says. This is what happened in Serbia. What began as grief-driven protests, demanding a thorough investigation into the collapse, quickly grew into a broad movement. Protesters turned their anger towards President Aleksandar Vučić and his ruling Serbian Progressive Party (SNS), blaming large-scale corruption for the catastrophe and accusing the government of restricting democratic freedoms since coming into power in 2017.</p>
+<p class="body-text">“Such protests very often attach themselves to tragic events”, says Dr. Tobias Spöri, a political scientist at the University of Vienna. He describes tragedies like this as a “core trigger” for protest movements, rooted in people being dissatisfied with the political situation. “It is very often students who initiate these processes”, he says. This is what happened in Serbia. What began as grief-driven protests, demanding a thorough investigation into the collapse, quickly grew into a broad movement. Protesters turned their anger towards President Aleksandar Vučić and his ruling Serbian Progressive Party (SNS), blaming large-scale corruption for the catastrophe and accusing the government of restricting democratic freedoms since coming into power in 2012.</p>
 """, unsafe_allow_html=True)
 
     # PA6 ── Expandable "Serbia’s Political System at a Glance"
@@ -734,7 +734,7 @@ render(0);
     st.markdown("""
 <div class="quote-box">
   <div class="quote-text">"Last year was a year of protesting, and this year will be hopefully the year of elections."</div>
-  <div class="quote-attr">— Vuk, 22-year old student from Novi Sad</div>
+  <div class="quote-attr">— Vuk, 22-year-old student from Novi Sad</div>
 </div>
 """, unsafe_allow_html=True)
 
