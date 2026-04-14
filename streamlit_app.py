@@ -621,7 +621,7 @@ body{{background:#0d0d0d;font-family:Georgia,serif;color:#e8e4de;padding-bottom:
     <div class="leg-note">1 dot = 1 protest event · ACLED 2026</div>
   </div>
   <div id="info">
-  Ogjen's statement is backed by data:<br>The increase in protests did not remain local to Novi Sad only, statistical analysis finds.
+  Ognjen's statement is backed by data:<br>The increase in protests did not remain local to Novi Sad only, statistical analysis finds.
   <br><br>Use the slider to move through time. Toggle to change between "monthly" and "cumulative" view.
 </div>
 </div>
@@ -638,7 +638,7 @@ body{{background:#0d0d0d;font-family:Georgia,serif;color:#e8e4de;padding-bottom:
 </div>
 <div id="cap">
   <!-- ◀ PA9 caption: describe what the map shows and add data source -->
-  Spread of protest events in Serbia from November 2024 until March 2026. "Monthly" (events that month only) and "cumulative" (all events up to that month) views. Source: ACLED, accessed 12. April 2026. www.acleddata.com Youth-related protests identified with keywords.
+  Spread of protest events in Serbia from November 2024 - March 2026. "Monthly" (events that month only) and "cumulative" (all events up to that month). Source: ACLED, accessed 12. April 2026. www.acleddata.com Youth-related protests identified with keywords.
 </div>
 <script>
 const M={map_json};const MONTHS={months_json};
@@ -725,7 +725,7 @@ render(0);
     # PRE2 ── Text block
     # ◀ PRE2: replace with your paragraph
     st.markdown("""
-<p class="body-text">In the summer of 2025 the movement entered a new stage, the strategy shifted toward political involvement.  A student list of non-partisan candidates, many drawn from academia, to challenge the regime directly in the electoral arena. Tobias Spöri sees this as a logical evolution for a movement to maintain its momentum. He notes that while re-democratizing a country like Serbia is a "very large hurdle", the emergence of a new force that distances itself from the "old opposition" brings vital "fresh air" to the system.</p>
+<p class="body-text">In the summer of 2025 the movement entered a new stage, the strategy shifted toward political involvement.  A student list of non-partisan candidates, many drawn from academia, wants to challenge the regime directly in the electoral arena. Tobias Spöri sees this as a logical evolution for a movement to maintain its momentum. He notes that while re-democratizing a country like Serbia is a "very large hurdle", the emergence of a new force that distances itself from the "old opposition" brings vital "fresh air" to the system.</p>
 """, unsafe_allow_html=True)
 
     # PRE3 ── Pull quote
