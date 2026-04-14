@@ -961,12 +961,6 @@ obs.observe(cards[0]);
 <p class="body-text">Data source:<br> 
 ACLED (Armed Conflict Location & Event Data), accessed 12. April 2026. www.acleddata.com
 </p>
-<p class="body-text">Dialogue sources:<br> 
-Luka (2026, April). Personal interview conducted by Sophie Eder.<br>
-Ognjen (2026, April). Personal interview conducted by Sophie Eder.<br>
-Vuk (2026, April). Personal interview conducted by Sophie Eder.<br>
-Dr. Tobias Spöri (2025, April). Personal interview conducted by Sophie Eder and Laura Lugmair.
-</p>
 <p class="body-text">Visual sources:<br>
 Mishyac. (2024, November 1). Novi Sad railway station canopy collapse [Photograph]. Wikimedia Commons. https://commons.wikimedia.org/wiki/File:Novi_Sad_railway_station_canopy_collapse.jpg<br>
 Visegrád 24. (2025, March 18). Picture showing the scale of Saturday's student protest in Belgrade which gathered more than half a million people demanding the… [Post]. X. https://x.com/visegrad24/status/1902376760555065655
@@ -974,6 +968,11 @@ Visegrád 24. (2025, March 18). Picture showing the scale of Saturday's student 
 <p class="body-text">Audio sources:<br>
 ElevenLabs. (2026). ElevenLabs voice AI [Software]. https://elevenlabs.io: The three voice notes on the website are AI-generated reproductions created using ElevenLabs based on real interviews; in order to protect our sources, we didn’t include their original voices.
 </p>
+<p class="body-text">Dialogue sources:<br> 
+Luka (2026, April). Personal interview conducted by Sophie Eder.<br>
+Ognjen (2026, April). Personal interview conducted by Sophie Eder.<br>
+Vuk (2026, April). Personal interview conducted by Sophie Eder.<br>
+Dr. Tobias Spöri (2025, April). Personal interview conducted by Sophie Eder and Laura Lugmair.
 <p class="body-text">Non-dialogue sources:<br>
 Al Jazeera. (2024, November 6). Police fire tear gas at Serbians protesting deadly station roof collapse. Al Jazeera. https://www.aljazeera.com/news/2024/11/6/police-fire-tear-gas-at-serbians-protesting-deadly-station-roof-collapse<br>
 BBC News. (2025, March 15). Serbia's largest-ever rally sees 325,000 protest against government. BBC News. https://www.bbc.com/news/articles/cx2g8v32q30o<br>
